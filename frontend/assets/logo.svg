@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="SmartExpense AI logo">
+  <!-- BASE: deep navy rounded square -->
+  <rect width="96" height="96" rx="21" fill="#14213d"/>
+
+  <!-- NOTEBOOK PAGE -->
+  <rect x="27" y="18" width="50" height="60" rx="6" fill="#fffdf6"/>
+
+  <!-- Red margin line, full page height -->
+  <line x1="33" y1="22" x2="33" y2="74" stroke="#ef8d90" stroke-width="1.6" stroke-linecap="round"/>
+
+  <!-- Ruled lines: two in the upper half (second shorter), one near the bottom -->
+  <line x1="39" y1="32" x2="63" y2="32" stroke="#c3d4ea" stroke-width="2.4" stroke-linecap="round"/>
+  <line x1="39" y1="40" x2="56" y2="40" stroke="#c3d4ea" stroke-width="2.4" stroke-linecap="round"/>
+  <line x1="39" y1="70" x2="58" y2="70" stroke="#c3d4ea" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- HIGHLIGHT BAR + hand-drawn checkmark -->
+  <rect x="38" y="46" width="28" height="12" rx="3" fill="#ffd84a"/>
+  <path d="M44 52 l3.2 3.2 L55 46.5" fill="none" stroke="#14213d" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- SPIRAL BINDING: three silver rings on the page's left edge -->
+  <rect x="18" y="29" width="18" height="7" rx="3.5" fill="#dfe5ee" stroke="#8d97a8" stroke-width="1.1"/>
+  <rect x="18" y="44" width="18" height="7" rx="3.5" fill="#dfe5ee" stroke="#8d97a8" stroke-width="1.1"/>
+  <rect x="18" y="59" width="18" height="7" rx="3.5" fill="#dfe5ee" stroke="#8d97a8" stroke-width="1.1"/>
+
+  <!-- AI SPARKLE: four-point star at the top-right corner -->
+  <path d="M80 3 Q82 12 91 14 Q82 16 80 25 Q78 16 69 14 Q78 12 80 3 Z"
+        fill="#ffd84a" stroke="#14213d" stroke-width="2.5" stroke-linejoin="round"/>
+</svg>

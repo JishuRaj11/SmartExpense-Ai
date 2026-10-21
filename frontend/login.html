@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sign in to SmartExpenses AI — Track. Understand. Save." />
+  <title>Sign In | SmartExpenses AI</title>
+
+  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="stylesheet" href="css/auth-theme.css" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+</head>
+
+<body>
+  <div class="auth-layout">
+    <!-- ---------------- Brand panel (hidden on tablet and below) ---------------- -->
+    <aside class="auth-aside">
+      <a class="aside-brand brand-link" href="landing.html" aria-label="Back to SmartExpense AI home">
+        <img class="auth-logo" src="assets/logo.svg" alt="SmartExpense AI" />
+        <span>SmartExpenses AI</span>
+      </a>
+
+      <div class="aside-body">
+        <h2>Take control of every rupee you spend.</h2>
+        <p>
+          Log your expenses, understand where your money goes and stay inside your
+          budget — all in one place.
+        </p>
+
+        <div class="aside-points">
+          <div class="aside-point">
+            <span class="tick">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7" /></svg>
+            </span>
+            Track expenses by category and date
+          </div>
+          <div class="aside-point">
+            <span class="tick">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7" /></svg>
+            </span>
+            See category, monthly and daily analytics
+          </div>
+          <div class="aside-point">
+            <span class="tick">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7" /></svg>
+            </span>
+            Set a monthly budget and never overspend
+          </div>
+        </div>
+      </div>
+
+      <div class="aside-foot">Track. Understand. Save.</div>
+    </aside>
+
+    <!-- ---------------- Sign-in form ---------------- -->
+    <main class="auth-main">
+      <div class="auth-card">
+        <!-- Brand shown only on small screens -->
+        <div class="auth-mobile-brand">
+          <a class="brand-link" href="landing.html" aria-label="Back to SmartExpense AI home">
+            <img class="auth-logo" src="assets/logo.svg" alt="SmartExpense AI" />
+            <span class="fw-700" style="font-size:1.05rem;color:#0f172a;">SmartExpenses AI</span>
+          </a>
+        </div>
+
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">Sign in to continue tracking your expenses.</p>
+
+        <!-- Server / session messages -->
+        <div class="form-alert" id="formAlert" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm" novalidate autocomplete="on">
+          <div class="field">
+            <label for="gmail">Gmail address</label>
+            <input
+              class="input"
+              type="email"
+              id="gmail"
+              name="gmail"
+              placeholder="you@gmail.com"
+              autocomplete="email"
+              required
+            />
+            <span class="field-error" id="gmailError"></span>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-affix" style="position:relative;">
+              <input
+                class="input"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+                style="padding-right:44px;"
+              />
+              <button
+                type="button"
+                class="btn btn-ghost"
+                id="togglePassword"
+                aria-label="Show password"
+                style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 8px;color:#94a3b8;"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+            <span class="field-error" id="passwordError"></span>
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit" id="loginButton">
+            Login
+          </button>
+        </form>
+
+        <p class="text-center text-sm text-muted" style="margin-top:20px;">
+          New to SmartExpenses AI?
+          <a href="signup.html" class="fw-700">Create Account</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- api.js first: it declares API_BASE_URL and the fetch wrapper. -->
+  <script src="js/api.js?v=2"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

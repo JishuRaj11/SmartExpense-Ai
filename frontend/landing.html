@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartExpense AI — Your money diary</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/landing.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+</head>
+
+<body>
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__brand" href="landing.html" aria-label="SmartExpense AI home">
+        <img class="navbar__logo" src="assets/logo.svg" alt="" width="42" height="42" />
+        <span class="navbar__name">SmartExpense AI</span>
+      </a>
+      <a class="navbar__cta" href="signup.html">Sign up</a>
+    </div>
+  </header>
+
+  <main class="hero">
+    <!-- ================= LEFT: copy ================= -->
+    <div class="hero__copy">
+      <p class="eyebrow">meet your new money diary</p>
+
+      <h1>
+        Your expenses,<br />
+        in a diary that <span class="hl">writes itself.</span>
+      </h1>
+
+      <!-- <p class="lede">
+        Add a spend or snap a receipt. SmartExpense AI sorts it, watches your
+        budget, and jots a tidy little entry at the end of every day. No
+        spreadsheets. No guilt trips.
+      </p> -->
+
+      <div class="actions">
+        <a class="btn btn--primary" href="signup.html">Start my diary</a>
+      </div>
+
+      <p class="hint">
+        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M4 8c14 1 24 9 30 24" stroke="#d64045" stroke-width="3" stroke-linecap="round" />
+          <path d="M25 31.5l9 1.5-2-9" stroke="#d64045" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        try flipping the pages on the diary
+      </p>
+    </div>
+
+    <!-- ================= RIGHT: the diary ================= -->
+    <div class="diary-wrap" id="diary">
+      <div class="diary">
+        <!-- Cover + spiral + paper -->
+        <div class="diary-cover">
+          <div class="spiral" aria-hidden="true"></div>
+
+          <div class="diary-page">
+            <!-- Paperclip overlapping the top edge -->
+            <svg class="paperclip" viewBox="0 0 24 64" fill="none" aria-hidden="true">
+              <path
+                d="M12 6c-5 0-6 4-6 7v34a7 7 0 0 0 14 0V14a4 4 0 0 0-8 0v30"
+                stroke="#aab4c2"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            <!-- D. Header -->
+            <div class="page-head">
+              <span class="page-date">Mon, 12 Oct</span>
+              <span class="page-dear">dear diary,</span>
+            </div>
+
+            <!-- E. Rows (filled by js/landing.js) -->
+            <div class="page-rows"></div>
+
+            <!-- F. Total -->
+            <div class="total-row">
+              <span class="total-label">spent today</span>
+              <span class="total-amount">&#8377;1,221</span>
+            </div>
+
+            <!-- G. AI note (filled by js/landing.js) -->
+            <p class="ai-note">groceries were the big one today. nothing scary!</p>
+
+            <!-- H. Stamp -->
+            <span class="stamp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 13l4 4L19 7" />
+              </svg>
+              AI SORTED
+            </span>
+          </div>
+        </div>
+
+        <!-- I. Decorations -->
+        <div class="sticky-note">snap a receipt, the AI does the rest!</div>
+
+        <div class="receipt" aria-hidden="true">
+          <div class="receipt__title">CAFE MOCHA</div>
+          <div class="receipt__row"><span>2x Latte</span><span>360</span></div>
+          <div class="receipt__row"><span>Brownie</span><span>140</span></div>
+          <div class="receipt__divider"></div>
+          <div class="receipt__total"><span>TOTAL</span><span>500</span></div>
+        </div>
+      </div>
+
+      <!-- J. Pager -->
+      <div class="pager">
+        <button type="button" class="pager-btn pager-btn--ghost" data-pager="prev">
+          &#8592; Earlier
+        </button>
+
+        <span class="dots" role="tablist" aria-label="Diary day">
+          <span class="dot active" role="presentation"></span>
+          <span class="dot" role="presentation"></span>
+          <span class="dot" role="presentation"></span>
+        </span>
+
+        <button type="button" class="pager-btn pager-btn--solid" data-pager="next">
+          Next day &#8594;
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Budget | SmartExpenses AI</title>
+  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%234f46e5'/%3E%3Cpath d='M5 15h14M5 10h9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <div class="main">
+    <!-- ---------------- Header ---------------- -->
+    <header class="topbar">
+      <button class="hamburger" id="menuToggle" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <img class="topbar-logo" src="assets/logo.svg" alt="" width="40" height="40" />
+
+      <div>
+        <h1>Budget</h1>
+        <div class="page-sub">Stay on top of your monthly limits</div>
+      </div>
+
+      <div class="topbar-right">
+        <a class="btn btn-secondary btn-sm" href="expenses.html">View Expenses</a>
+        <span class="avatar" data-user-avatar>U</span>
+      </div>
+    </header>
+
+    <!-- ---------------- Content ---------------- -->
+    <main class="page">
+      <div class="page-head">
+        <h2>Monthly Budget</h2>
+        <p id="budgetSubtitle">Your spending limit for the current month.</p>
+      </div>
+
+      <!-- Summary cards -->
+      <section class="stat-grid" id="statGrid">
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <!-- Progress + set / update budget -->
+        <div class="stack">
+          <section class="card">
+            <div class="card-head">
+              <h3>Budget Progress</h3>
+              <span class="hint" id="monthChip"></span>
+            </div>
+            <div class="card-body" id="progressCard">
+              <div class="skeleton sk-line" style="width:60%;height:14px;"></div>
+              <div class="skeleton sk-line" style="width:100%;height:14px;margin-top:16px;"></div>
+
+              <!-- Shown when no budget has been set yet -->
+              <div id="noBudgetState" hidden>
+                <div class="state" style="padding:34px 20px;">
+                  <div class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                      <path d="m16.2 7.8-2.1 2.1" />
+                      <path d="M20 12a8 8 0 1 0-16 0" />
+                    </svg>
+                  </div>
+                  <h4>No budget set for this month</h4>
+                  <p>Set a spending limit and we will track how much of it you have used.</p>
+                </div>
+              </div>
+
+              <!-- Progress bar -->
+              <div id="progressState" hidden>
+                <div class="progress-meta">
+                  <span>Spent <span class="val" id="spentValue">&mdash;</span></span>
+                  <span>Budget <span class="val" id="budgetValue">&mdash;</span></span>
+                </div>
+                <div class="progress progress-lg">
+                  <div class="progress-bar" id="budgetBar" style="width:0;"></div>
+                </div>
+                <p class="text-sm" id="progressHint" style="margin-top:12px;"></p>
+
+                <div class="row-between" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line);">
+                  <div>
+                    <div class="text-xs text-muted">Remaining</div>
+                    <div class="fw-700" id="remainingValue" style="font-size:1.2rem;">&mdash;</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-xs text-muted">Used</div>
+                    <div class="fw-700" id="usedPercentValue" style="font-size:1.2rem;">&mdash;</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Per-category snapshot for the month -->
+          <section class="card">
+            <div class="card-head">
+              <h3>Category Breakdown This Month</h3>
+            </div>
+            <div class="card-body tight" id="categoryBreakdown">
+              <div class="skeleton sk-line" style="width:75%;height:14px;margin:14px 0;"></div>
+              <div class="skeleton sk-line" style="width:55%;height:14px;margin:14px 0;"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Set / update budget form -->
+        <section class="card">
+          <div class="card-head">
+            <h3 id="formTitle">Set Budget</h3>
+            <span class="hint" id="formModeHint"></span>
+          </div>
+          <div class="card-body">
+            <div class="form-alert" id="formAlert" role="alert" aria-live="polite"></div>
+
+            <form id="budgetForm" novalidate>
+              <div class="field">
+                <label for="amount">Monthly budget amount <span class="req">*</span></label>
+                <div class="input-affix">
+                  <span class="prefix" id="currencyPrefix">&#8377;</span>
+                  <input
+                    class="input"
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0.01"
+                    inputmode="decimal"
+                    required
+                  />
+                </div>
+                <span class="help">The limit you want to stay under each month.</span>
+                <span class="field-error" id="amountError"></span>
+              </div>
+
+              <div class="field">
+                <label for="month">Budget month</label>
+                <input class="input" type="month" id="month" name="month" />
+                <span class="help">Changing the month loads that month's budget.</span>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary btn-lg" type="submit" id="submitButton">
+                  <span>Save Budget</span>
+                </button>
+                <button class="btn btn-secondary btn-lg" type="button" id="resetButton">
+                  Clear
+                </button>
+              </div>
+            </form>
+
+            <div style="height:1px;background:var(--line);margin:22px 0;"></div>
+
+            <!-- Quick-pick presets (client-side convenience only) -->
+            <div class="text-sm fw-700" style="margin-bottom:10px;">Quick pick</div>
+            <div class="row-actions">
+              <button class="btn btn-secondary btn-sm" type="button" data-preset="5000">&#8377;5,000</button>
+              <button class="btn btn-secondary btn-sm" type="button" data-preset="10000">&#8377;10,000</button>
+              <button class="btn btn-secondary btn-sm" type="button" data-preset="25000">&#8377;25,000</button>
+              <button class="btn btn-secondary btn-sm" type="button" data-preset="50000">&#8377;50,000</button>
+            </div>
+
+            <p class="text-xs text-muted" style="margin-top:18px;">
+              Saved budgets are stored by the FastAPI backend through
+              <code>POST /budget</code>.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js?v=4"></script>
+  <script src="js/budget.js"></script>
+</body>
+</html>

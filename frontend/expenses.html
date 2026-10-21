@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expenses | SmartExpenses AI</title>
+  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%234f46e5'/%3E%3Cpath d='M5 15h14M5 10h9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <div class="main">
+    <!-- ---------------- Header ---------------- -->
+    <header class="topbar">
+      <button class="hamburger" id="menuToggle" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <img class="topbar-logo" src="assets/logo.svg" alt="" width="40" height="40" />
+
+      <div>
+        <h1>Expenses</h1>
+        <div class="page-sub">Every rupee, accounted for</div>
+      </div>
+
+      <div class="topbar-right">
+        <a class="btn btn-primary btn-sm" href="add-expense.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Add Expense</span>
+        </a>
+        <span class="avatar" data-user-avatar>U</span>
+      </div>
+    </header>
+
+    <!-- ---------------- Content ---------------- -->
+    <main class="page">
+      <div class="page-head">
+        <h2>All Expenses</h2>
+        <p>Search, filter, edit and delete the expenses stored in your account.</p>
+      </div>
+
+      <section class="card">
+        <!-- Filters: category + date + clear -->
+        <div class="filter-bar">
+          <div class="filter-field">
+            <label for="filterCategory">Category</label>
+            <select class="input" id="filterCategory">
+              <option value="">All categories</option>
+              <!-- Options added by expenses.js from UI.CATEGORIES -->
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="filterDate">Date</label>
+            <input class="input" type="date" id="filterDate" />
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn btn-secondary" type="button" id="clearFilters">Clear</button>
+            <button class="btn btn-primary" type="button" id="applyFilters">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+              <span>Filter</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading / empty / error states are rendered here -->
+        <div id="expenseTableWrap">
+          <div class="loading-overlay">
+            <span class="spinner dark"></span>
+            <span>Loading your expenses...</span>
+          </div>
+        </div>
+
+        <!-- Footer summary -->
+        <div class="table-foot" id="tableFoot" hidden>
+          <span class="text-sm text-muted" id="resultCount">&mdash;</span>
+          <span class="text-sm">
+            <span class="text-muted">Total shown: </span>
+            <strong class="amount" id="resultTotal">&mdash;</strong>
+          </span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js?v=4"></script>
+  <script src="js/expenses.js"></script>
+</body>
+</html>

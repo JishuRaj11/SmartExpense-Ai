@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartExpenses AI — Track. Understand. Save.</title>
+  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%234f46e5'/%3E%3Cpath d='M5 15h14M5 10h9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <script>
+    /* Entry point: send the visitor to the dashboard if a JWT exists,
+       otherwise to the login page. Pure routing — no API call needed. */
+    (function () {
+      var token = null;
+      try {
+        token = localStorage.getItem("smartexpenses.token");
+      } catch (err) {
+        token = null;
+      }
+      window.location.replace(token ? "dashboard.html" : "login.html");
+    })();
+  </script>
+</head>
+<body>
+  <!-- Redirecting. This page is only visible for a split second. -->
+  <div class="loading-overlay" style="min-height:100vh;">
+    <span class="spinner dark"></span>
+    <span>Taking you to SmartExpenses AI...</span>
+  </div>
+
+  <noscript>
+    <div style="padding:40px;text-align:center;">
+      <h1>SmartExpenses AI</h1>
+      <p>Please enable JavaScript, or go directly to <a href="login.html">login.html</a>.</p>
+    </div>
+  </noscript>
+</body>
+</html>

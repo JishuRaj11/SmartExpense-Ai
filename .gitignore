@@ -1,0 +1,49 @@
+# Local SQLite databases (contain user emails, password hashes and expense data)
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Node (if any tooling is added later)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and caches
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Trained model artifacts are large and regenerable; uncomment to exclude them.
+# ml/models/*.pkl

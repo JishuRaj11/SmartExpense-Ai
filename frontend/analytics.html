@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analytics | SmartExpenses AI</title>
+  <link rel="stylesheet" href="css/style.css?v=4" />
+
+  <!-- Chart.js via CDN — used only to draw charts, nothing else. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%234f46e5'/%3E%3Cpath d='M5 15h14M5 10h9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <div class="main">
+    <!-- ---------------- Header ---------------- -->
+    <header class="topbar">
+      <button class="hamburger" id="menuToggle" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <img class="topbar-logo" src="assets/logo.svg" alt="" width="40" height="40" />
+
+      <div>
+        <h1>Analytics</h1>
+        <div class="page-sub">AI-powered forecast of your monthly spending</div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" type="button" id="refreshButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-3-6.7" />
+            <path d="M21 4v5h-5" />
+          </svg>
+          <span>Refresh</span>
+        </button>
+        <span class="avatar" data-user-avatar>U</span>
+      </div>
+    </header>
+
+    <!-- ---------------- Content ---------------- -->
+    <main class="page">
+      <div class="page-head">
+        <h2>Spending Prediction</h2>
+        <p>Our model learns from your expense history to forecast what you will spend next month.</p>
+      </div>
+
+      <!-- Prediction overview numbers -->
+      <section class="stat-grid" id="overviewGrid">
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+      </section>
+
+      <!-- Prediction graph -->
+      <section class="card" style="margin-bottom:18px;">
+        <div class="card-head">
+          <h3>Monthly Spending Forecast</h3>
+          <span class="hint" id="forecastSource"></span>
+        </div>
+        <div class="card-body">
+          <div class="chart-box" id="forecastChartBox">
+            <canvas id="forecastChart" aria-label="Monthly spending history with next month forecast" role="img"></canvas>
+          </div>
+          <p class="text-xs text-muted" id="forecastNote" style="margin-top:12px;"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js?v=4"></script>
+  <script src="js/analytics.js?v=3"></script>
+</body>
+</html>

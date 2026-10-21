@@ -1,0 +1,774 @@
+/* ==========================================================================
+   SmartExpenses AI — Landing page hero
+   --------------------------------------------------------------------------
+   A two-column hero: copy + buttons on the left, an animated spiral-notebook
+   "money diary" on the right. Plain CSS only — the only JS adds the spiral
+   rings and drives the page-flip interaction (see js/landing.js).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+  --grey: #eceff4;
+  --grid-dot: #c9d1de;
+  --ink: #14213d;
+  --ink-soft: #33405c;
+  --ink-edge: #0b1429;
+  --highlight: #ffd84a;
+  --pen-red: #d64045;
+  --stamp-green: #1f8a70;
+  --paper: #fffdf6;
+  --rule-blue: #c3d4ea;
+  --margin-red: #ef8d90;
+  --muted: #8a93a6;
+  --dot-idle: #b9c3d6;
+
+  --radius-btn: 14px;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+  --font-mono: "Space Mono", "Courier New", monospace;
+}
+
+/* --------------------------------------------------------------------------
+   BASE
+   -------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--grey);
+  background-image: radial-gradient(var(--grid-dot) 1.2px, transparent 1.2px);
+  background-size: 26px 26px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR
+   Styles live in css/navbar.css so the auth pages can share them.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   HERO LAYOUT
+   -------------------------------------------------------------------------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 40px 32px 96px;
+  overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   LEFT COLUMN — COPY
+   -------------------------------------------------------------------------- */
+.hero__copy {
+  max-width: 620px;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 14px;
+  font-family: var(--font-hand);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--pen-red);
+  transform: rotate(-2deg);
+}
+
+.hero h1 {
+  margin: 0 0 26px;
+  font-family: var(--font-head);
+  font-weight: 400;
+  font-size: clamp(52px, 7.4vw, 98px);
+  line-height: 0.98;
+  letter-spacing: -1px;
+}
+
+/* The highlighter - italic span with a marker stroke behind ~46% of its height */
+.hero h1 .hl {
+  position: relative;
+  display: inline-block;
+  padding: 0 6px;
+  font-style: italic;
+  isolation: isolate;
+}
+
+.hero h1 .hl::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.05em;
+  height: 46%;
+  z-index: -1;
+  background: var(--highlight);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: marker 1.1s ease-out 0.5s forwards;
+}
+
+@keyframes marker {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.lede {
+  margin: 0 0 34px;
+  max-width: 520px;
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ---- Buttons ---- */
+.actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 18px 32px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-btn);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn--primary {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 5px 5px 0 var(--highlight);
+}
+
+.btn--primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--highlight);
+}
+
+.btn--primary:active {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 var(--highlight);
+}
+
+.btn--secondary {
+  background: var(--paper);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.btn--secondary:hover {
+  transform: translate(2px, 2px);
+}
+
+/* ---- Handwritten hint ---- */
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.hint svg {
+  flex: none;
+  width: 34px;
+  height: 34px;
+}
+
+/* --------------------------------------------------------------------------
+   RIGHT COLUMN — THE DIARY
+   -------------------------------------------------------------------------- */
+.diary-wrap {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.diary {
+  position: relative;
+  transform: rotate(-1.5deg);
+}
+
+/* A. Cover ---------------------------------------------------------------- */
+.diary-cover {
+  position: relative;
+  padding: 16px 16px 16px 40px;
+  background: var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(20, 33, 61, 0.35), 0 6px 0 var(--ink-edge);
+}
+
+/* B. Spiral binding ------------------------------------------------------- */
+.spiral {
+  position: absolute;
+  top: 34px;
+  left: 6px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ring {
+  position: relative;
+  width: 46px;
+  height: 14px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #f7f9fc, #8d97a8);
+  box-shadow: 0 2px 3px rgba(11, 20, 41, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.ring::after {
+  content: "";
+  position: absolute;
+  inset: 4px 15px;
+  border-radius: 50%;
+  background: rgba(11, 20, 41, 0.28);
+}
+
+/* C. Paper page ----------------------------------------------------------- */
+.diary-page {
+  position: relative;
+  min-height: 560px;
+  padding: 0 30px 34px 70px;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    transparent 0 35px,
+    var(--rule-blue) 35px 36px
+  );
+  background-position: 0 72px;
+  border-radius: 6px 12px 12px 6px;
+}
+
+/* Red margin line running the full height, 50px from the left edge */
+.diary-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50px;
+  width: 2px;
+  z-index: 3;
+  background: var(--margin-red);
+}
+
+/* Paperclip overlapping the top edge */
+.paperclip {
+  position: absolute;
+  top: -22px;
+  right: 26px;
+  width: 26px;
+  height: 64px;
+  z-index: 6;
+  filter: drop-shadow(0 3px 3px rgba(11, 20, 41, 0.25));
+}
+
+/* D. Page header ---------------------------------------------------------- */
+.page-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 72px;
+  padding-bottom: 8px;
+  background: var(--paper);
+}
+
+.page-date {
+  font-family: var(--font-hand);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.page-dear {
+  font-family: var(--font-hand);
+  font-size: 24px;
+  color: var(--muted);
+}
+
+/* E. Expense rows --------------------------------------------------------- */
+.page-rows {
+  position: relative;
+  z-index: 1;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 36px;
+  padding-bottom: 2px;
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.row-label {
+  font-family: var(--font-hand);
+  font-size: 27px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.chip {
+  flex: none;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.chip--food {
+  color: #8f3d0a;
+  background: #ffe3c9;
+}
+.chip--travel {
+  color: #0b5a8a;
+  background: #d6ecfb;
+}
+.chip--home {
+  color: #1f6b3a;
+  background: #d9f2df;
+}
+.chip--subs {
+  color: #6b2c91;
+  background: #eadcf7;
+}
+.chip--bills {
+  color: #8a1f3a;
+  background: #fbdbe3;
+}
+.chip--learning {
+  color: #075e54;
+  background: #d2f1ec;
+}
+
+.row-amount {
+  flex: none;
+  padding-left: 12px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* F. Total row ------------------------------------------------------------ */
+.total-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 36px;
+}
+
+.total-label {
+  font-family: var(--font-hand);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.total-amount {
+  position: relative;
+  isolation: isolate;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.total-amount::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  bottom: 0.02em;
+  height: 55%;
+  z-index: -1;
+  background: var(--highlight);
+}
+
+/* G. AI note -------------------------------------------------------------- */
+.ai-note {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding-top: 6px;
+  font-family: var(--font-hand);
+  font-size: 25px;
+  line-height: 36px;
+  color: var(--pen-red);
+}
+
+/* H. Green stamp ---------------------------------------------------------- */
+.stamp {
+  position: absolute;
+  right: 26px;
+  bottom: 26px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 3px solid var(--stamp-green);
+  border-radius: 10px;
+  color: var(--stamp-green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transform: rotate(-12deg) scale(1);
+  opacity: 0.92;
+  animation: stampThud 0.6s ease-out 0.45s both;
+}
+
+.stamp svg {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes stampThud {
+  0% {
+    transform: rotate(-12deg) scale(2.4);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(-12deg) scale(0.96);
+    opacity: 0.92;
+  }
+  100% {
+    transform: rotate(-12deg) scale(1);
+    opacity: 0.92;
+  }
+}
+
+/* I. Decorations ---------------------------------------------------------- */
+.sticky-note {
+  position: absolute;
+  top: -28px;
+  right: -22px;
+  z-index: 7;
+  width: 170px;
+  padding: 14px 16px;
+  background: var(--highlight);
+  color: var(--ink);
+  font-family: var(--font-hand);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.15;
+  box-shadow: 0 12px 24px rgba(20, 33, 61, 0.22);
+  transform: rotate(5deg);
+  animation: stickyWobble 5s ease-in-out infinite;
+}
+
+@keyframes stickyWobble {
+  0%,
+  100% {
+    transform: rotate(5deg) translateY(0);
+  }
+  50% {
+    transform: rotate(2deg) translateY(-6px);
+  }
+}
+
+.receipt {
+  position: absolute;
+  left: -26px;
+  bottom: -30px;
+  z-index: 7;
+  width: 150px;
+  padding: 12px 14px 16px;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.7;
+  box-shadow: 0 12px 26px rgba(20, 33, 61, 0.24);
+  transform: rotate(-6deg);
+  animation: receiptFloat 6s ease-in-out infinite;
+  /* perforated dotted bottom edge */
+  background-image: radial-gradient(#d5dae2 1.5px, transparent 1.6px);
+  background-size: 8px 8px;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+}
+
+@keyframes receiptFloat {
+  0%,
+  100% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-4deg) translateY(-8px);
+  }
+}
+
+.receipt__title {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.receipt__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.receipt__divider {
+  margin: 6px 0;
+  border-top: 1px dashed #b9c0cc;
+}
+
+.receipt__total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+/* J. Pager + page flip ---------------------------------------------------- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.pager-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.pager-btn:hover {
+  transform: translateY(-2px);
+}
+
+.pager-btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.pager-btn--solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--dot-idle);
+  transition: background 0.2s ease;
+}
+
+.dot.active {
+  background: var(--ink);
+}
+
+/* The page-turn animation. Two identical keyframes (flipA / flipB) let the
+   same animation replay on every click by alternating the class. */
+.diary-page {
+  transform-origin: left center;
+}
+
+.diary-page.flip-a {
+  animation: flipA 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.diary-page.flip-b {
+  animation: flipB 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes flipA {
+  from {
+    transform: perspective(1400px) rotateY(-75deg);
+    opacity: 0.15;
+  }
+  to {
+    transform: perspective(1400px) rotateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flipB {
+  from {
+    transform: perspective(1400px) rotateY(-75deg);
+    opacity: 0.15;
+  }
+  to {
+    transform: perspective(1400px) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   FOCUS VISIBILITY
+   -------------------------------------------------------------------------- */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: var(--radius-btn);
+}
+
+.pager-btn:focus-visible {
+  border-radius: 999px;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 72px;
+    padding: 56px 22px 80px;
+  }
+
+  .hero__copy {
+    max-width: none;
+  }
+
+  .lede {
+    max-width: none;
+  }
+
+  .diary-wrap {
+    max-width: 100%;
+  }
+
+  .sticky-note {
+    right: -6px;
+  }
+
+  .receipt {
+    left: -6px;
+  }
+}
+
+@media (max-width: 520px) {
+  .btn {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .diary-page {
+    padding: 0 18px 30px 58px;
+  }
+
+  .row-label {
+    font-size: 24px;
+  }
+
+  .page-date {
+    font-size: 34px;
+  }
+
+  .stamp {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 .hl::before {
+    transform: scaleX(1);
+    animation: none;
+  }
+
+  .stamp {
+    animation: none;
+    transform: rotate(-12deg) scale(1);
+    opacity: 0.92;
+  }
+
+  .sticky-note,
+  .receipt,
+  .diary-page.flip-a,
+  .diary-page.flip-b {
+    animation: none;
+  }
+
+  .sticky-note {
+    transform: rotate(5deg);
+  }
+
+  .receipt {
+    transform: rotate(-6deg);
+  }
+
+  .btn,
+  .pager-btn {
+    transition: none;
+  }
+}

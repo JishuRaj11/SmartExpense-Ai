@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard | SmartExpenses AI</title>
+  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%234f46e5'/%3E%3Cpath d='M5 15h14M5 10h9' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <!-- Sidebar and mobile backdrop are built by js/layout.js -->
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <div class="main">
+    <!-- ---------------- Header ---------------- -->
+    <header class="topbar">
+      <button class="hamburger" id="menuToggle" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <img class="topbar-logo" src="assets/logo.svg" alt="" width="40" height="40" />
+
+      <div>
+        <h1>SmartExpenses AI</h1>
+        <div class="page-sub">Track. Understand. Save.</div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-date">
+          <div class="d" data-today-label>&mdash;</div>
+          <div class="t" data-today-year>&mdash;</div>
+        </div>
+        <a class="btn btn-primary btn-sm" href="add-expense.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Add Expense</span>
+        </a>
+        <span class="avatar" data-user-avatar>U</span>
+      </div>
+    </header>
+
+    <!-- ---------------- Dashboard content ---------------- -->
+    <main class="page">
+      <div class="page-head">
+        <h2>Welcome back, <span data-user-name>User</span></h2>
+        <p>Here is how your money is moving today.</p>
+      </div>
+
+      <!-- Summary cards: 1 Total, 2 This Month, 3 Today, 4 Remaining, 5 Used % -->
+      <section class="stat-grid" id="statGrid" aria-label="Expense summary">
+        <!-- Skeletons are replaced by dashboard.js -->
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+        <div class="stat-card">
+          <div class="skeleton sk-line" style="width:60%;height:11px;"></div>
+          <div class="skeleton sk-line" style="width:70%;height:26px;margin-top:14px;"></div>
+        </div>
+      </section>
+
+      <!-- Budget progress -->
+      <section class="card" style="margin-bottom:22px;">
+        <div class="card-body">
+          <div class="progress-meta">
+            <span>
+              Monthly budget &mdash;
+              <span class="val" id="budgetMetaValue">&mdash;</span>
+            </span>
+            <span>
+              Used <span class="val" id="budgetUsedPercent">&mdash;</span>
+            </span>
+          </div>
+          <div class="progress progress-lg">
+            <div class="progress-bar" id="budgetBar" style="width:0;"></div>
+          </div>
+          <p class="text-sm text-muted" id="budgetHint" style="margin-top:10px;">
+            Loading your budget...
+          </p>
+        </div>
+      </section>
+
+      <!-- Next month spending prediction (GET /predict-spending) -->
+      <section class="card" style="margin-bottom:22px;">
+        <div class="card-head">
+          <h3>Spending Prediction</h3>
+          <span class="hint" id="predictionHint"></span>
+        </div>
+        <div class="card-body" id="predictionCard">
+          <div class="skeleton sk-line" style="width:40%;height:22px;"></div>
+          <div class="skeleton sk-line" style="width:65%;height:14px;margin-top:12px;"></div>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <!-- Recent transactions -->
+        <section class="card">
+          <div class="card-head">
+            <h3>Recent Transactions</h3>
+            <a class="btn btn-ghost btn-sm" href="expenses.html">View all</a>
+          </div>
+          <div id="recentList">
+            <div class="loading-overlay"><span class="spinner dark"></span><span>Loading...</span></div>
+          </div>
+        </section>
+
+        <div class="stack">
+          <!-- Top spending category -->
+          <section class="card">
+            <div class="card-head">
+              <h3>Top Spending Category</h3>
+            </div>
+            <div class="card-body" id="topCategory">
+              <div class="skeleton sk-line" style="width:70%;height:22px;"></div>
+              <div class="skeleton sk-line" style="width:50%;height:12px;margin-top:12px;"></div>
+            </div>
+          </section>
+
+          <!-- Monthly summary -->
+          <section class="card">
+            <div class="card-head">
+              <h3>Monthly Expense Summary</h3>
+            </div>
+            <div class="card-body tight" id="monthlySummary">
+              <div class="skeleton sk-line" style="width:80%;height:14px;margin:14px 0;"></div>
+              <div class="skeleton sk-line" style="width:60%;height:14px;margin:14px 0;"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Load order matters: api -> ui -> auth -> layout -> page script -->
+  <script src="js/api.js?v=2"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js?v=4"></script>
+  <script src="js/dashboard.js?v=2"></script>
+</body>
+</html>

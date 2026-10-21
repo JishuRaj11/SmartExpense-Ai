@@ -1,0 +1,204 @@
+user_id,date,amount,title
+u1,2025-01-12,2499,Uber ride
+u1,2025-01-09,5129,Clothes
+u1,2025-02-05,2299,Groceries
+u1,2025-02-06,5760,Uber ride
+u1,2025-03-26,2432,Clothes
+u1,2025-03-23,6344,Restaurant
+u1,2025-04-05,2622,Train ticket
+u1,2025-04-18,3180,Phone recharge
+u1,2025-04-11,1819,Train ticket
+u1,2025-04-07,1971,Restaurant
+u1,2025-04-08,50,Phone recharge
+u1,2025-05-19,3426,Books
+u1,2025-05-17,1534,Rent share
+u1,2025-05-25,2719,Gym fee
+u1,2025-05-16,2225,Gym fee
+u1,2025-06-11,1334,Train ticket
+u1,2025-06-13,8709,Rent share
+u1,2025-07-18,2394,Internet bill
+u1,2025-07-15,8182,Electricity bill
+u1,2025-08-11,2020,Clothes
+u1,2025-08-23,4322,Rent share
+u1,2025-08-08,3285,Books
+u1,2025-08-10,1681,Electricity bill
+u1,2025-09-22,2336,Clothes
+u1,2025-09-12,3296,Coffee
+u1,2025-09-03,4003,Uber ride
+u1,2025-09-12,4182,Restaurant
+u1,2025-09-10,50,Rent share
+u1,2025-10-17,2133,Restaurant
+u1,2025-10-22,4369,Medicines
+u1,2025-10-06,1901,Uber ride
+u1,2025-10-19,3479,Books
+u1,2025-11-13,4619,Phone recharge
+u1,2025-11-05,2256,Books
+u1,2025-11-02,3211,Coffee
+u1,2025-11-21,1874,Electricity bill
+u1,2025-11-14,478,Gym fee
+u1,2025-12-15,2831,Books
+u1,2025-12-18,2376,Coffee
+u1,2025-12-04,4790,Internet bill
+u1,2025-12-09,4589,Train ticket
+u1,2025-12-21,50,Phone recharge
+u1,2026-01-14,3149,Groceries
+u1,2026-01-08,5042,Books
+u1,2026-01-16,4342,Rent share
+u1,2026-01-20,495,Movie night
+u1,2026-02-04,2326,Books
+u1,2026-02-15,5529,Groceries
+u1,2026-02-18,6434,Phone recharge
+u2,2025-03-14,2284,Coffee
+u2,2025-03-12,12816,Uber ride
+u2,2025-04-04,4945,Rent share
+u2,2025-04-04,4392,Train ticket
+u2,2025-04-19,4181,Train ticket
+u2,2025-05-19,3948,Electricity bill
+u2,2025-05-21,2516,Restaurant
+u2,2025-05-08,6493,Books
+u2,2025-06-13,4329,Internet bill
+u2,2025-06-15,4090,Books
+u2,2025-06-15,5127,Rent share
+u2,2025-07-01,1628,Gym fee
+u2,2025-07-19,3248,Uber ride
+u2,2025-07-01,6931,Rent share
+u2,2025-08-01,2218,Coffee
+u2,2025-08-10,9831,Rent share
+u2,2025-09-14,2168,Uber ride
+u2,2025-09-17,2967,Gym fee
+u2,2025-09-14,5817,Uber ride
+u2,2025-10-05,3739,Rent share
+u2,2025-10-12,1590,Phone recharge
+u2,2025-10-13,2578,Coffee
+u2,2025-10-19,3502,Internet bill
+u2,2025-10-02,50,Groceries
+u2,2025-11-01,3209,Uber ride
+u2,2025-11-15,1619,Medicines
+u2,2025-11-03,1484,Movie night
+u2,2025-11-12,3012,Uber ride
+u2,2025-12-15,2340,Rent share
+u2,2025-11-29,7250,Internet bill
+u2,2026-01-04,3211,Electricity bill
+u2,2026-01-10,4996,Medicines
+u2,2026-01-28,2674,Electricity bill
+u2,2026-02-08,1669,Movie night
+u2,2026-02-10,3042,Movie night
+u3,2025-06-17,1464,Uber ride
+u3,2025-06-26,3507,Clothes
+u3,2025-06-18,2436,Groceries
+u3,2025-06-23,1201,Books
+u3,2025-06-24,357,Electricity bill
+u3,2025-07-10,2137,Gym fee
+u3,2025-07-10,3828,Internet bill
+u3,2025-08-25,1140,Uber ride
+u3,2025-08-08,2094,Gym fee
+u3,2025-08-25,1061,Gym fee
+u3,2025-08-15,1978,Uber ride
+u3,2025-08-17,1153,Uber ride
+u3,2025-09-26,1202,Movie night
+u3,2025-09-08,1903,Groceries
+u3,2025-09-24,1905,Rent share
+u3,2025-09-12,1078,Books
+u3,2025-09-14,1587,Electricity bill
+u3,2025-10-17,3061,Movie night
+u3,2025-10-11,5298,Medicines
+u3,2025-11-25,3591,Books
+u3,2025-11-22,1506,Movie night
+u3,2025-11-08,4696,Electricity bill
+u3,2025-11-13,2537,Rent share
+u3,2025-12-24,1251,Uber ride
+u3,2025-12-11,2046,Internet bill
+u3,2025-12-25,3079,Coffee
+u3,2026-01-05,1458,Rent share
+u3,2026-01-12,2280,Groceries
+u3,2026-01-08,927,Internet bill
+u3,2026-01-09,3021,Clothes
+u3,2026-01-18,50,Books
+u3,2026-02-06,3125,Rent share
+u3,2026-02-07,4338,Books
+u3,2026-02-14,1467,Gym fee
+u3,2026-02-16,3098,Electricity bill
+u3,2026-02-04,50,Movie night
+u4,2026-01-16,2257,Internet bill
+u4,2026-01-17,3816,Internet bill
+u4,2026-02-22,2032,Gym fee
+u4,2026-02-16,1980,Coffee
+u4,2026-02-14,993,Restaurant
+u4,2026-02-09,1000,Electricity bill
+u4,2026-03-18,2219,Movie night
+u4,2026-03-14,1059,Restaurant
+u4,2026-03-26,2345,Uber ride
+u4,2026-03-25,1132,Phone recharge
+u4,2026-03-20,50,Coffee
+u4,2026-04-16,827,Restaurant
+u4,2026-04-12,1384,Train ticket
+u4,2026-04-18,4322,Phone recharge
+u5,2024-09-19,3998,Phone recharge
+u5,2024-09-05,4935,Movie night
+u5,2024-09-10,2190,Groceries
+u5,2024-09-15,1937,Phone recharge
+u5,2024-09-12,50,Restaurant
+u5,2024-10-20,2972,Uber ride
+u5,2024-10-10,10072,Groceries
+u5,2024-11-18,3422,Internet bill
+u5,2024-11-07,9464,Phone recharge
+u5,2024-12-11,5020,Gym fee
+u5,2024-12-11,7996,Internet bill
+u5,2025-01-13,3120,Phone recharge
+u5,2025-01-09,2771,Books
+u5,2025-01-13,1853,Internet bill
+u5,2025-01-12,4166,Internet bill
+u5,2025-01-30,2865,Movie night
+u5,2025-02-12,2456,Train ticket
+u5,2025-02-19,3462,Phone recharge
+u5,2025-02-13,3479,Medicines
+u5,2025-03-06,3555,Internet bill
+u5,2025-03-17,1942,Internet bill
+u5,2025-03-21,8014,Gym fee
+u5,2025-04-07,4616,Internet bill
+u5,2025-04-09,8606,Uber ride
+u5,2025-05-07,1625,Medicines
+u5,2025-05-02,3731,Medicines
+u5,2025-05-13,7459,Internet bill
+u5,2025-06-11,4658,Medicines
+u5,2025-06-03,3364,Internet bill
+u5,2025-05-30,6485,Train ticket
+u5,2025-07-15,2308,Medicines
+u5,2025-07-06,1707,Coffee
+u5,2025-07-03,1961,Train ticket
+u5,2025-07-15,3185,Books
+u5,2025-07-18,3575,Phone recharge
+u5,2025-08-15,5028,Medicines
+u5,2025-08-13,5294,Medicines
+u5,2025-08-05,2746,Coffee
+u5,2025-08-14,4257,Medicines
+u5,2025-08-18,50,Uber ride
+u5,2025-09-06,1944,Uber ride
+u5,2025-09-07,2691,Books
+u5,2025-09-01,1956,Uber ride
+u5,2025-09-01,3118,Clothes
+u5,2025-09-03,4015,Rent share
+u5,2025-10-11,3072,Restaurant
+u5,2025-10-10,1985,Restaurant
+u5,2025-10-15,5394,Clothes
+u5,2025-10-15,1812,Restaurant
+u5,2025-10-12,2186,Groceries
+u5,2025-11-09,4746,Books
+u5,2025-11-13,4722,Train ticket
+u5,2025-11-03,4142,Medicines
+u5,2025-11-03,730,Movie night
+u5,2025-12-06,1900,Internet bill
+u5,2025-12-08,4601,Clothes
+u5,2025-12-10,2465,Electricity bill
+u5,2025-12-13,5853,Groceries
+u5,2025-12-08,50,Gym fee
+u5,2026-01-08,2225,Electricity bill
+u5,2026-01-09,13286,Electricity bill
+u5,2026-01-31,3065,Medicines
+u5,2026-02-06,2867,Movie night
+u5,2026-02-07,4480,Movie night
+u5,2026-01-27,3143,Medicines
+u1,not-a-date,500,Bad date row
+u2,2026-04-12,-250,Refund row
+u3,2099-01-01,9999,Future row
+u4,2026-07-03,abc,Bad amount row
