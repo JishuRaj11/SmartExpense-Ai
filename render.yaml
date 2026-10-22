@@ -1,0 +1,44 @@
+# Render Blueprint for SmartExpenses AI API
+#
+# https://render.com/docs/blueprint-spec
+# Commit this as render.yaml and connect the repo on Render, or use "New
+# Web Service" -> "Build and deploy from a Git repository".
+#
+# After the first deploy, copy the public URL (e.g.
+# https://smartexpenses-api.onrender.com) and set it as the API_BASE_URL
+# repository variable on GitHub so the Pages site points to it.
+
+services:
+  - type: web
+    name: smartexpenses-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 8001
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: CORS_ORIGINS
+        # Replace this with your GitHub Pages URL after enabling Pages.
+        # e.g. https://jishuraj11.github.io
+        value: https://jishuraj11.github.io
+      - key: EXPENSES_DB_PATH
+        value: /app/data/expenses.db
+      - key: SIGNUP_DB_PATH
+        value: /app/data/signup.db
+      - key: PREDICTION_MIN_MONTHS
+        value: 5
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1
