@@ -1,19 +1,15 @@
-import os
+"""JWT issuing and verification.
+
+The signing key, the algorithm and the token lifetime all come from
+`backend/config.py`, which reads them from the environment. In production the
+key is mandatory; the server refuses to start without it.
+"""
+
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt, JWTError
 
-
-# The signing key can be supplied through the environment in production.
-# The fallback keeps the original value so tokens issued before this change
-# stay valid until they expire.
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "my-secret-key")
-
-ALGORITHM = "HS256"
-
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
-)
+from . import config
 
 
 def create_access_token(user_id: int) -> str:
@@ -26,7 +22,7 @@ def create_access_token(user_id: int) -> str:
         raise ValueError("user_id is required")
 
     expire = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     payload = {
@@ -36,7 +32,11 @@ def create_access_token(user_id: int) -> str:
         "iat": datetime.now(timezone.utc),
     }
 
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        payload,
+        config.JWT_SECRET_KEY,
+        algorithm=config.JWT_ALGORITHM,
+    )
 
 
 def verify_access_token(token: str):
@@ -49,7 +49,11 @@ def verify_access_token(token: str):
         return None
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token,
+            config.JWT_SECRET_KEY,
+            algorithms=[config.JWT_ALGORITHM],
+        )
     except JWTError:
         # Expired signature / bad token / wrong key.
         return None

@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      APP_ENV: development
+      PORT: "8001"
+      # Set a real value before exposing this to anyone.
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5500}
+      EXPENSES_DB_PATH: /app/data/expenses.db
+      SIGNUP_DB_PATH: /app/data/signup.db
+    volumes:
+      # Keeps the databases when the container is rebuilt.
+      - api-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  api-data:

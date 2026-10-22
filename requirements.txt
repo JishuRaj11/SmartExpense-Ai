@@ -1,10 +1,29 @@
-bcrypt==5.0.0
+# SmartExpenses AI — full project requirements
+#
+# This file installs everything the project needs (API + ML + tests).
+# The backend alone is enough for a deployment:
+#
+#     pip install -r backend/requirements.txt
+
+# Web framework and server
 fastapi==0.119.0
-joblib==1.6.0
-pandas==3.0.6
-passlib==1.7.4
-pydantic==2.11.10
-SQLAlchemy==2.0.52
-python-jose[cryptography]==3.5.0
-scikit-learn==1.9.1
 uvicorn[standard]==0.37.0
+
+# Database
+SQLAlchemy==2.0.52
+
+# Validation
+pydantic==2.11.10
+
+# Authentication
+bcrypt==5.0.0
+python-jose[cryptography]==3.5.0
+
+# Machine learning
+scikit-learn==1.9.1
+pandas==3.0.6
+joblib==1.6.0
+
+# Tests
+pytest==9.1.1
+httpx==0.28.1

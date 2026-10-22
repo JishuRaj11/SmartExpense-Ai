@@ -1,0 +1,29 @@
+# SmartExpenses AI — backend requirements
+#
+#   pip install -r backend/requirements.txt
+#
+# The ML extras (scikit-learn, pandas, joblib) are needed by the two
+# prediction endpoints. They are included here because the API imports the ML
+# modules on start-up.
+
+fastapi==0.119.0
+uvicorn[standard]==0.37.0
+
+# Database
+SQLAlchemy==2.0.52
+
+# Validation
+pydantic==2.11.10
+
+# Authentication
+bcrypt==5.0.0
+python-jose[cryptography]==3.5.0
+
+# Machine learning
+scikit-learn==1.9.1
+pandas==3.0.6
+joblib==1.6.0
+
+# Tests
+pytest==9.1.1
+httpx==0.28.1

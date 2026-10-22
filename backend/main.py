@@ -1,88 +1,61 @@
+"""SmartExpenses AI — FastAPI application.
+
+This module owns the HTTP API: authentication, expenses, budgets, analytics
+and the two machine-learning predictions.
+
+Run it from the project root:
+
+    uvicorn backend.main:app --reload --port 8001
+
+The interactive documentation is then at http://127.0.0.1:8001/docs.
+"""
+
 import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field, field_validator
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, func
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
-
-from jwt_auth import verify_access_token
-from auth import router as auth_router
-
-# The ML module lives in the sibling ml/ folder, so its path is added here
-# once. The training script and this API then share the same single copy of
-# the prediction code (no duplicated model logic inside main.py).
-ML_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "ml"
+from . import config
+from .auth import router as auth_router
+from .database import ExpensesSessionLocal, get_db, init_db
+from .jwt_auth import verify_access_token
+from .models import BudgetModel, ExpenseModel
+from .schemas import (
+    BudgetAmount,
+    BudgetCreate,
+    CategoryPredictRequest,
+    ExpenseCreate,
+    ExpenseUpdate,
 )
-if ML_DIR not in sys.path:
-    sys.path.insert(0, ML_DIR)
 
-from category_prediction import ModelNotTrainedError, predict_category
 
-# Next Month Spending Prediction (user-specific)
+# ---------------- ML MODULES ----------------
+# The ML code lives in the sibling ml/ folder. The project root is put on the
+# import path so `ml` resolves as a package no matter which directory the
+# server was started from.
+
+if str(config.PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(config.PROJECT_ROOT))
+
+# The ML modules read their own tunables from the environment when they are
+# imported, so the values are published before the import happens.
+os.environ.setdefault(
+    "PREDICTION_MIN_MONTHS", str(config.PREDICTION_MIN_MONTHS)
+)
+
+from ml.category_prediction import ModelNotTrainedError, predict_category  # noqa: E402
+
 try:
-    from spending_prediction import (
-        MIN_MONTHS_HISTORY,
-        predict_next_month_spending,
-    )
-except ImportError:
-    MIN_MONTHS_HISTORY = 6
+    from ml.spending_prediction import predict_next_month_spending
+except ImportError:  # pragma: no cover - the ML folder is optional
     predict_next_month_spending = None  # type: ignore
-
-
-# ---------------- DATABASE SETUP ----------------
-
-DATABASE_URL = "sqlite:///./expenses.db"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
-
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
-    autocommit=False
-)
-
-Base = declarative_base()
-
-
-# ---------------- DATABASE MODEL ----------------
-
-class ExpenseModel(Base):
-    __tablename__ = "expenses"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    amount = Column(Float, nullable=False)
-    category = Column(String, nullable=False)
-    # Stored as an ISO "YYYY-MM-DD" string. Kept as text so the existing rows in
-    # expenses.db stay valid without a migration.
-    date = Column(String, nullable=False)
-    user_id = Column(Integer, nullable=False, index=True)
-
-
-class BudgetModel(Base):
-    __tablename__ = "budgets"
-
-    id = Column(Integer, primary_key=True, index=True)
-    amount = Column(Float, nullable=False)
-    # "YYYY-MM"
-    month = Column(String, nullable=False, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
-
-
-# Create the table
-Base.metadata.create_all(bind=engine)
 
 
 # ---------------- CATEGORIES ----------------
@@ -102,6 +75,9 @@ MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ]
+
+
+# ---------------- HELPERS ----------------
 
 
 def normalize_category(value) -> str:
@@ -143,129 +119,6 @@ def normalize_existing_categories(db: Session) -> int:
     return changed
 
 
-# ---------------- PYDANTIC SCHEMAS ----------------
-
-class ExpenseCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=120)
-    amount: float = Field(gt=0, le=100000000)
-    category: str = Field(min_length=1, max_length=40)
-    date: date
-
-    @field_validator("title")
-    @classmethod
-    def strip_title(cls, value: str) -> str:
-        cleaned = value.strip()
-        if not cleaned:
-            raise ValueError("Title cannot be blank")
-        return cleaned
-
-
-class ExpenseUpdate(ExpenseCreate):
-    """Same payload as create; PUT replaces the whole record."""
-
-
-class BudgetCreate(BaseModel):
-    amount: float = Field(gt=0, le=100000000)
-    month: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
-
-    @field_validator("month")
-    @classmethod
-    def check_month(cls, value: str) -> str:
-        try:
-            datetime.strptime(value, "%Y-%m")
-        except ValueError:
-            raise ValueError("Month must use the YYYY-MM format")
-        return value
-
-
-class BudgetAmount(BaseModel):
-    amount: float = Field(gt=0, le=100000000)
-
-
-class CategoryPredictRequest(BaseModel):
-    """Payload for POST /predict-category — only the title is needed.
-
-    The category and confidence come back from the model, so the client
-    never has to send (or guess) one.
-    """
-    title: str = Field(min_length=1, max_length=120)
-
-    @field_validator("title")
-    @classmethod
-    def strip_title(cls, value: str) -> str:
-        cleaned = value.strip()
-        if not cleaned:
-            raise ValueError("Title cannot be blank")
-        return cleaned
-
-
-# ---------------- FASTAPI SETUP ----------------
-
-@asynccontextmanager
-async def lifespan(application: FastAPI):
-    """Run the one-time data repair when the server starts."""
-    repair_legacy_categories()
-    yield
-
-
-app = FastAPI(title="SmartExpenses API", lifespan=lifespan)
-
-# ---------------- CORS ----------------
-# The front-end is served from a different origin (a static file server or
-# file://), so without this the browser blocks every request before it reaches
-# FastAPI. Override with CORS_ORIGINS="http://localhost:5500,http://127.0.0.1:5500"
-_cors_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "*").split(",")
-    if origin.strip()
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_cors_origins,
-    # Auth travels in the Authorization header, not cookies, so credentials are
-    # not required and "*" stays a valid value.
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# /register and /login lived in a separate FastAPI instance that was never
-# mounted, so they were unreachable on this port. They are served here now.
-app.include_router(auth_router)
-
-
-security = HTTPBearer()
-
-
-# ---------------- HELPERS ----------------
-
-# Database dependency
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    token = credentials.credentials
-
-    user_id = verify_access_token(token)
-
-    if user_id is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or expired token"
-        )
-
-    return user_id
-
-
 def serialize_expense(expense: ExpenseModel) -> dict:
     return {
         "id": expense.id,
@@ -300,8 +153,8 @@ def get_budget_row(db: Session, user_id: int, month: str):
 def upsert_budget(db: Session, user_id: int, month: str, amount: float):
     """Create or update the single budget row for a user/month pair.
 
-    main.py only ever inserted rows before, so repeated saves piled up duplicate
-    budgets for the same month. This updates the existing row instead.
+    The endpoint used to always insert a row, so repeated saves piled up
+    duplicate budgets for the same month. This updates the existing row instead.
     """
     existing = get_budget_row(db, user_id, month)
 
@@ -364,21 +217,89 @@ def sum_amounts(expenses: list) -> float:
     return round(sum(float(item.amount or 0) for item in expenses), 2)
 
 
-# ---------------- STARTUP ----------------
-
 def repair_legacy_categories() -> None:
     """Repair the casing of already-stored categories.
 
     Idempotent, and only touches values that match a known category once the
     first letter is capitalised, so no user data is lost.
     """
-    db = SessionLocal()
+    db = ExpensesSessionLocal()
     try:
         changed = normalize_existing_categories(db)
         if changed:
             print(f"[startup] normalised {changed} expense categorie(s)")
     finally:
         db.close()
+
+
+# ---------------- APP SETUP ----------------
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    """Prepare the database and validate the configuration on startup."""
+    warnings = config.validate_runtime_settings()
+    for warning in warnings:
+        print(f"[startup] warning: {warning}")
+
+    init_db()
+    repair_legacy_categories()
+
+    print(f"[startup] SmartExpenses API ready (env={config.APP_ENV})")
+    yield
+
+
+app = FastAPI(
+    title="SmartExpenses API",
+    description=(
+        "Expense tracking with JWT authentication, budgets, analytics and "
+        "machine-learning category / spending predictions."
+    ),
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+
+# The front-end is served from a different origin (a static file server), so
+# without this the browser blocks every request before it reaches FastAPI.
+# Set CORS_ORIGINS="http://localhost:5500" to narrow it down.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ORIGINS,
+    # Auth travels in the Authorization header, not cookies, so credentials are
+    # not required and "*" stays a valid value.
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# /register and /login lived in a separate FastAPI instance that was never
+# mounted, so they were unreachable on this port. They are served here now.
+app.include_router(auth_router)
+
+
+security = HTTPBearer()
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Resolve the logged-in user from the bearer token.
+
+    The token is the only source of identity: no endpoint accepts a user id
+    from the query string or the body.
+    """
+    token = credentials.credentials
+
+    user_id = verify_access_token(token)
+
+    if user_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+        )
+
+    return user_id
 
 
 # ---------------- ROUTES ----------------
@@ -395,11 +316,12 @@ def home():
     return {
         "Message": "SmartExpense backend is running",
         "Docs": "/docs",
-        "Health": "/health"
+        "Health": "/health",
     }
 
 
 # ---------------- DASHBOARD ----------------
+
 
 @app.get("/dashboard")
 def get_dashboard(
@@ -483,6 +405,7 @@ def get_dashboard(
 
 # ---------------- EXPENSES ----------------
 
+
 @app.post("/expenses")
 def create_expense(
     expense: ExpenseCreate,
@@ -503,7 +426,7 @@ def create_expense(
 
     return {
         "Message": "Expense created successfully",
-        "Expense": serialize_expense(new_expense)
+        "Expense": serialize_expense(new_expense),
     }
 
 
@@ -525,7 +448,7 @@ def get_expenses(
 
     return {
         "Message": "Expenses fetched successfully",
-        "Expenses": [serialize_expense(item) for item in expenses]
+        "Expenses": [serialize_expense(item) for item in expenses],
     }
 
 
@@ -551,7 +474,7 @@ def get_expense(
 
     return {
         "Message": "Expense fetched successfully",
-        "Expense": serialize_expense(expense)
+        "Expense": serialize_expense(expense),
     }
 
 
@@ -584,7 +507,7 @@ def update_expense(
 
     return {
         "Message": "Expense updated successfully",
-        "Expense": serialize_expense(expense)
+        "Expense": serialize_expense(expense),
     }
 
 
@@ -611,11 +534,12 @@ def delete_expense(
 
     return {
         "Message": "Expense deleted Successfully",
-        "Expense ID": expense_id
+        "Expense ID": expense_id,
     }
 
 
 # ---------------- AI CATEGORY PREDICTION ----------------
+
 
 @app.post("/predict-category")
 def predict_expense_category(payload: CategoryPredictRequest):
@@ -637,6 +561,7 @@ def predict_expense_category(payload: CategoryPredictRequest):
 
 
 # ---------------- ANALYTICS ----------------
+
 
 @app.get("/analytics/category")
 def analytics_category(
@@ -709,6 +634,7 @@ def analytics_daily(
 
 # ---------------- BUDGET ----------------
 
+
 @app.get("/budget")
 def read_budget(
     month: str = Query(None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$"),
@@ -728,8 +654,8 @@ def read_budget(
         "Budget": {
             "id": budget.id,
             "amount": budget.amount,
-            "month": budget.month
-        }
+            "month": budget.month,
+        },
     }
 
 
@@ -756,12 +682,12 @@ def list_budgets(
         result.append({
             "id": row.id,
             "amount": row.amount,
-            "month": row.month
+            "month": row.month,
         })
 
     return {
         "Message": "Budgets fetched successfully",
-        "Budgets": result
+        "Budgets": result,
     }
 
 
@@ -780,8 +706,8 @@ def create_budget(
         "Budget": {
             "id": new_budget.id,
             "amount": new_budget.amount,
-            "month": new_budget.month
-        }
+            "month": new_budget.month,
+        },
     }
 
 
@@ -800,8 +726,8 @@ def update_budget(
         "Budget": {
             "id": updated.id,
             "amount": updated.amount,
-            "month": updated.month
-        }
+            "month": updated.month,
+        },
     }
 
 
@@ -818,7 +744,7 @@ def update_budget_for_month(
     except ValueError:
         raise HTTPException(
             status_code=422,
-            detail="Month must use the YYYY-MM format"
+            detail="Month must use the YYYY-MM format",
         )
 
     updated = upsert_budget(
@@ -830,8 +756,8 @@ def update_budget_for_month(
         "Budget": {
             "id": updated.id,
             "amount": updated.amount,
-            "month": updated.month
-        }
+            "month": updated.month,
+        },
     }
 
 
@@ -851,7 +777,7 @@ def delete_budget(
 
     return {
         "Message": "Budget deleted successfully",
-        "Month": month
+        "Month": month,
     }
 
 
@@ -860,14 +786,13 @@ def delete_budget(
 
 @app.get("/predict-spending")
 def predict_spending(
-    db: Session = Depends(get_db),  # kept for signature compatibility
     user_id: int = Depends(get_current_user),
 ):
     """Predict next month's spending ONLY for the currently authenticated user.
 
     Never accepts user_id from query/body. The JWT (get_current_user) is the
     sole source of identity. The prediction is computed from this user's own
-    expense history in backend/expenses.db.
+    expense history in the expenses database.
     """
     if predict_next_month_spending is None:
         raise HTTPException(
@@ -875,7 +800,10 @@ def predict_spending(
             detail="Spending prediction module not loaded.",
         )
 
-    result = predict_next_month_spending(user_id, db_path="./expenses.db")
+    result = predict_next_month_spending(
+        user_id,
+        db_path=str(config.EXPENSES_DB_PATH),
+    )
 
     if result.get("status") != "success":
         return result
@@ -910,3 +838,14 @@ def predict_spending(
         payload["change_percentage"] = 0.0
 
     return payload
+
+
+if __name__ == "__main__":  # pragma: no cover
+    import uvicorn
+
+    uvicorn.run(
+        "backend.main:app",
+        host=config.API_HOST,
+        port=config.API_PORT,
+        reload=True,
+    )

@@ -1,0 +1,66 @@
+name: Deploy frontend to GitHub Pages
+
+# The front-end is a plain static site in `frontend/`. It is published to
+# GitHub Pages on every push that touches it, so a merge is enough to ship.
+#
+# The backend URL is injected at build time from the API_BASE_URL repository
+# variable (Settings -> Secrets and variables -> Actions -> Variables), so the
+# API can be moved without a new commit. When the variable is not set the
+# committed `frontend/config.js` is used as-is.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; a newer push cancels the older run.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare the site
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          if [ -n "$API_BASE_URL" ]; then
+            printf 'window.APP_CONFIG = {\n  API_BASE_URL: "%s",\n};\n' "$API_BASE_URL" > frontend/config.js
+            echo "API base URL taken from the API_BASE_URL repository variable."
+          else
+            echo "::warning::The API_BASE_URL repository variable is not set. The site will use the API_BASE_URL committed in frontend/config.js. The app cannot reach the API until that URL points at the deployed backend."
+          fi
+
+          # The dev-only static server is not part of the published site.
+          rm -f frontend/serve.py
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend
+
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -4,68 +4,193 @@
    The ONLY place the backend URL is declared. Everything else imports from
    here, so the URL is never repeated in another file.
 
-   Backend base URL: http://127.0.0.1:8001
+   The URL is resolved at runtime (see "CONFIGURATION" below), so the same
+   files work unchanged on localhost, on GitHub Pages and behind any domain.
 
-   IMPORTANT (CORS)
-   ----------------
-   `main.py` does not register FastAPI's CORSMiddleware. Browsers block
-   cross-origin XHR from a static front-end (localhost/file://) to
-   127.0.0.1:8001, so every request below would fail with a network error
-   until CORS is enabled server-side. To fix it on the backend (not done here,
-   because the backend must not be modified), add to main.py:
+   CORS
+   ----
+   `main.py` enables FastAPI's CORSMiddleware and reads the allowed origins
+   from the CORS_ORIGINS environment variable. A front-end served from a
+   different origin than the API — the normal setup on GitHub Pages — is
+   therefore blocked by the browser unless that origin is listed:
 
-       from fastapi.middleware.cors import CORSMiddleware
+       CORS_ORIGINS=https://<user>.github.io
 
-       app.add_middleware(
-           CORSMiddleware,
-           allow_origins=["*"],
-           allow_credentials=False,
-           allow_methods=["*"],
-           allow_headers=["*"],
-       )
-
-   NOTE: `main.py` also never includes the `auth.py` app, so POST /login and
-   POST /register are not reachable on port 8001 as things stand. Both
-   `main.py` and `auth.py` need to be served from the same app/port.
+   With CORS_ORIGINS unset the backend allows every origin, which is fine
+   for local development but should be tightened before going live.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    CONFIGURATION — single source of truth
+   --------------------------------------------------------------------------
+   The base URL is resolved once, when this file loads, in this order
+   (first match wins):
+
+     1. ?api=<url>        query string override, for one-off testing
+     2. localStorage      "smartexpenses.apiBaseUrl", persists across pages
+     3. config.js         window.APP_CONFIG.API_BASE_URL  <- the deployer
+     4. automatic         localhost -> http://127.0.0.1:8001
+                          anything else -> the same origin as this page
+
+   An empty base URL means "same origin", so a request to /expenses goes to
+   https://<host>/expenses rather than https://<host>/api/expenses.
    -------------------------------------------------------------------------- */
-const API_BASE_URL = "http://127.0.0.1:8001";
+const API_BASE_URL = resolveApiBaseUrl();
 
 const TOKEN_KEY = "smartexpenses.token";
 const USER_KEY = "smartexpenses.user";
 
-/* Budget cache: `GET /budget` is not implemented, so the value returned by
-   `POST /budget` is cached per month and reused as the read path. */
+/** Where a saved override of the base URL is kept between pages. */
+const API_BASE_URL_STORAGE_KEY = "smartexpenses.apiBaseUrl";
+
+/** The backend used while developing on this machine. */
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8001";
+
+/* Budget cache: `GET /budget` answers 404 until a budget exists for a month,
+   so the value returned by `POST /budget` is cached as the read path. */
 const BUDGET_CACHE_PREFIX = "smartexpenses.budget.";
 
 const REQUEST_TIMEOUT_MS = 20000;
 
 /* --------------------------------------------------------------------------
+   BASE URL RESOLUTION
+   -------------------------------------------------------------------------- */
+
+/**
+ * Clean up a base URL: drop trailing slashes and turn the "same-origin"
+ * keyword into an empty string, which means "use the current origin".
+ */
+function normalizeApiBaseUrl(value) {
+  const raw = String(value == null ? "" : value).trim();
+  if (!raw || raw.toLowerCase() === "same-origin") return "";
+  return raw.replace(/\/+$/, "");
+}
+
+/** True when the page is being opened from a development machine. */
+function isLocalDevelopmentHost() {
+  const host = window.location.hostname;
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    host === "0.0.0.0" ||
+    /\.local$/i.test(host)
+  );
+}
+
+/** The `?api=` override, or null when the query string does not carry one. */
+function readQueryApiBaseUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("api");
+    if (raw === null || !String(raw).trim()) return null;
+    return normalizeApiBaseUrl(raw);
+  } catch (err) {
+    return null;
+  }
+}
+
+/** The saved override, or null when nothing has been saved. */
+function readStoredApiBaseUrl() {
+  try {
+    const raw = localStorage.getItem(API_BASE_URL_STORAGE_KEY);
+    if (raw === null) return null;
+    return normalizeApiBaseUrl(raw);
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * The value from `config.js`.
+ *
+ * Returns null when there is no configuration file at all, and an empty
+ * string when the file asks for automatic behaviour.
+ */
+function readConfiguredApiBaseUrl() {
+  const config = window.APP_CONFIG;
+  if (!config) return null;
+  if (config.API_BASE_URL === undefined || config.API_BASE_URL === null) {
+    return null;
+  }
+  return normalizeApiBaseUrl(config.API_BASE_URL);
+}
+
+/** The fallback used when nothing has been configured: local dev or same origin. */
+function automaticApiBaseUrl() {
+  return isLocalDevelopmentHost() ? LOCAL_API_BASE_URL : "";
+}
+
+/** Work out which backend this page should talk to. */
+function resolveApiBaseUrl() {
+  const queryOverride = readQueryApiBaseUrl();
+  if (queryOverride !== null) return queryOverride;
+
+  const storedOverride = readStoredApiBaseUrl();
+  if (storedOverride !== null) return storedOverride;
+
+  const configured = readConfiguredApiBaseUrl();
+  if (configured === null) return automaticApiBaseUrl();
+  if (configured === "") return automaticApiBaseUrl();
+
+  return configured;
+}
+
+/**
+ * Remember a base URL for every page of this site.
+ *
+ * @param {string} url  e.g. "https://api.example.com", or "" for same origin
+ */
+function setApiBaseUrl(url) {
+  try {
+    localStorage.setItem(API_BASE_URL_STORAGE_KEY, normalizeApiBaseUrl(url));
+  } catch (err) {
+    /* storage unavailable (private mode) — the value is simply not persisted */
+  }
+  return normalizeApiBaseUrl(url);
+}
+
+/** Forget a saved override and fall back to `config.js`. */
+function clearApiBaseUrl() {
+  try {
+    localStorage.removeItem(API_BASE_URL_STORAGE_KEY);
+  } catch (err) {
+    /* nothing to clean up */
+  }
+}
+
+/** The backend URL, spelled out for error messages. */
+function describeApiBaseUrl() {
+  return API_BASE_URL || window.location.origin;
+}
+
+/* --------------------------------------------------------------------------
    ENDPOINT STATUS
-   Implemented in the FastAPI backend:            ✔
-   Not yet implemented in the backend:            ! (see notes in each function)
+   Every endpoint the front-end uses exists in the FastAPI backend.
 
      POST /login                            ✔  auth.py
      POST /register                         ✔  auth.py
      POST /predict-category                 ✔  main.py
+     GET  /predict-spending                 ✔  main.py
      POST /expenses                         ✔  main.py
      GET  /expenses[?category=&date=]        ✔  main.py
      GET  /expenses/{id}                    ✔  main.py
      PUT  /expenses/{id}                    ✔  main.py
      DELETE /expenses/{id}                  ✔  main.py
+     GET  /dashboard                        ✔  main.py
+     GET  /analytics/category               ✔  main.py
+     GET  /analytics/monthly                ✔  main.py
+     GET  /analytics/daily                  ✔  main.py
+     GET  /budget                           ✔  main.py
+     GET  /budgets                          ✔  main.py
      POST /budget                           ✔  main.py
-     GET  /dashboard                        !  missing
-     GET  /analytics/category               !  missing
-     GET  /analytics/monthly                !  missing
-     GET  /analytics/daily                  !  missing
-     GET  /budget                           !  missing
-     PUT  /budget                           !  missing
+     PUT  /budget                           ✔  main.py
+     PUT  /budget/{month}                   ✔  main.py
+     DELETE /budget/{month}                 ✔  main.py
 
-   Functions marked "Backend endpoint required" try the real endpoint first and
-   fall back to computing the same figure from GET /expenses, which is real
+   The dashboard and analytics helpers still fall back to computing the same
+   figure from GET /expenses when their endpoint is unreachable, so the UI
+   keeps working against an older backend. The figures always come from real
    backend data — never hardcoded numbers.
    -------------------------------------------------------------------------- */
 
@@ -126,8 +251,10 @@ function friendlyMessage(status, detail) {
 function networkMessage() {
   return (
     "Cannot reach the server at " +
-    API_BASE_URL +
-    ". Make sure the FastAPI backend is running, and that CORS is enabled."
+    describeApiBaseUrl() +
+    ". Make sure the FastAPI backend is running, that it allows this " +
+    "origin (CORS_ORIGINS), and that the API_BASE_URL in config.js is " +
+    "correct."
   );
 }
 
@@ -907,6 +1034,10 @@ const Api = {
   API_BASE_URL: API_BASE_URL,
   TOKEN_KEY: TOKEN_KEY,
   USER_KEY: USER_KEY,
+  // base URL overrides
+  setApiBaseUrl: setApiBaseUrl,
+  clearApiBaseUrl: clearApiBaseUrl,
+  describeApiBaseUrl: describeApiBaseUrl,
   // errors + low-level helpers
   ApiError: ApiError,
   request: request,

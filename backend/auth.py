@@ -1,93 +1,32 @@
-from fastapi import APIRouter, FastAPI, HTTPException, Depends
-from pydantic import BaseModel, Field
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
+"""Registration and login.
 
-from password import hash_password, verify_password, is_bcrypt_hash
-from jwt_auth import create_access_token
+Both endpoints live on a router (instead of a second FastAPI app) so they are
+mounted on the same application and port as the rest of the API. A separate
+app was never mounted, which made /login and /register unreachable.
+"""
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-# ---------------- DATABASE SETUP ----------------
+from .database import get_auth_db
+from .jwt_auth import create_access_token
+from .models import SignupModel
+from .password import hash_password, is_bcrypt_hash, verify_password
+from .schemas import LoginCreate, SignupCreate
 
-DATABASE_URL = "sqlite:///./signup.db"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
-
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
-    autocommit=False
-)
-
-Base = declarative_base()
-
-
-# ---------------- DATABASE MODEL ----------------
-
-class SignupModel(Base):
-    __tablename__ = "signup"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    gmail = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
-
-
-# Create the table
-Base.metadata.create_all(bind=engine)
-
-
-# ---------------- PYDANTIC SCHEMAS ----------------
-
-class SignupCreate(BaseModel):
-    name: str = Field(min_length=2, max_length=80)
-    gmail: str = Field(min_length=5, max_length=120)
-    password: str = Field(min_length=6, max_length=72)
-
-    def normalized_gmail(self) -> str:
-        """Lower-case and trim the address.
-
-        SQLite compares text case-sensitively, so storing the raw address allowed
-        the same mailbox to be registered twice (Jis@x.com vs jis@x.com).
-        """
-        return self.gmail.strip().lower()
-
-
-class LoginCreate(BaseModel):
-    gmail: str = Field(min_length=5, max_length=120)
-    password: str = Field(min_length=1, max_length=72)
-
-    def normalized_gmail(self) -> str:
-        return self.gmail.strip().lower()
-
-
-# ---------------- ROUTER ----------------
 
 # Declared as a router so main.py can mount /register and /login on the same
-# app and port. `app` below is kept for running this module on its own.
-# No prefix: the paths stay exactly /register and /login.
+# app and port. No prefix: the paths stay exactly /register and /login.
 router = APIRouter(tags=["Authentication"])
-
-
-# Database dependency
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 # ---------------- REGISTER API ----------------
 
+
 @router.post("/register")
 def user_register(
     data: SignupCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_auth_db),
 ):
     gmail = data.normalized_gmail()
 
@@ -103,13 +42,13 @@ def user_register(
     if existing_user:
         raise HTTPException(
             status_code=400,
-            detail="Gmail already exists"
+            detail="Gmail already exists",
         )
 
     new_user = SignupModel(
         name=data.name.strip(),
         gmail=gmail,
-        password=hash_password(data.password)
+        password=hash_password(data.password),
     )
 
     db.add(new_user)
@@ -121,17 +60,18 @@ def user_register(
         "User": {
             "id": new_user.id,
             "name": new_user.name,
-            "gmail": new_user.gmail
-        }
+            "gmail": new_user.gmail,
+        },
     }
 
 
 # ---------------- LOGIN API ----------------
 
+
 @router.post("/login")
 def user_login(
     data: LoginCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_auth_db),
 ):
     gmail = data.normalized_gmail()
 
@@ -146,7 +86,7 @@ def user_login(
     if not existing_user:
         raise HTTPException(
             status_code=404,
-            detail="User not found"
+            detail="User not found",
         )
 
     # Row was created before passwords were hashed, so it can never be matched.
@@ -154,17 +94,17 @@ def user_login(
         raise HTTPException(
             status_code=401,
             detail="Account password was stored in an unsupported format. "
-                   "Please contact support or register again."
+                   "Please contact support or register again.",
         )
 
     # Check the password
     if not verify_password(
         data.password,
-        existing_user.password
+        existing_user.password,
     ):
         raise HTTPException(
             status_code=401,
-            detail="Incorrect password"
+            detail="Incorrect password",
         )
 
     # Create JWT
@@ -176,13 +116,6 @@ def user_login(
         "User": {
             "id": existing_user.id,
             "name": existing_user.name,
-            "gmail": existing_user.gmail
-        }
+            "gmail": existing_user.gmail,
+        },
     }
-
-
-# ---------------- STANDALONE APP ----------------
-# Kept so `uvicorn auth:app` still works while developing this module alone.
-
-app = FastAPI(title="SmartExpenses Auth API")
-app.include_router(router)
