@@ -41,33 +41,14 @@ python -m pytest
 
 ---
 
-## Deploying the front-end to GitHub Pages
+## Deploying the front-end
 
-The front-end is a static site, so it is published straight from the `frontend/`
-folder by `.github/workflows/pages.yml`.
+The front-end is deployed with the API as the `frontend` service in the same
+Vercel project; see [Vercel](#vercel) below. No separate static host or
+`API_BASE_URL` repository variable is required.
 
-### 1. Turn on GitHub Pages
-
-Repository → **Settings** → **Pages** → **Build and deployment** → **Source**:
-**GitHub Actions**.
-
-### 2. Tell the site where the backend lives
-
-The published site has to know the URL of the deployed API. Two ways to set it:
-
-**a. A repository variable (no commit needed)**
-
-Repository → **Settings** → **Secrets and variables** → **Actions** →
-**Variables** → create `API_BASE_URL` with the value of your deployed backend,
-for example `https://smartexpenses-api.onrender.com`.
-
-The workflow writes this value into `frontend/config.js` before publishing, so
-you can change the backend later without touching the code.
-
-**b. Editing `frontend/config.js`**
-
-Set `API_BASE_URL` in that file to the same value and push. Use this when you
-prefer the URL to live in version control.
+`frontend/config.js` uses `/api`, which reaches the backend on the same origin.
+During local development it falls back to `http://127.0.0.1:8001` on localhost.
 
 The value is one of:
 
@@ -76,25 +57,16 @@ The value is one of:
 | `""` | Automatic: `http://127.0.0.1:8001` on localhost, the page's own origin anywhere else |
 | `"same-origin"` | Always use the page's own origin |
 | `"/api"` | Vercel Services: same origin, with the backend behind the `/api` rewrite |
-| `"https://api.example.com"` | A separately hosted backend, such as GitHub Pages |
+| `"https://api.example.com"` | A separately hosted backend |
 
 Two temporary overrides exist for testing without editing any file:
 
 ```
-https://<user>.github.io/<repo>/login.html?api=https://api.example.com
+https://<site>/login.html?api=https://api.example.com
 ```
 
 and `localStorage.setItem("smartexpenses.apiBaseUrl", "https://api.example.com")`,
 which persists across every page of the site.
-
-### 3. Push
-
-```bash
-git push origin main
-```
-
-The workflow publishes the site to
-`https://<user>.github.io/<repo>/`. Every push that touches `frontend/` redeploys.
 
 ---
 
@@ -132,7 +104,7 @@ Set these environment variables on the host:
 | --- | --- | --- |
 | `APP_ENV` | yes | `production` |
 | `JWT_SECRET_KEY` | yes | Random secret, at least 32 characters |
-| `CORS_ORIGINS` | yes | The front-end origin, e.g. `https://<user>.github.io` |
+| `CORS_ORIGINS` | yes | The front-end origin, e.g. `https://<project>.vercel.app` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | no | Token lifetime, default `30` |
 | `EXPENSES_DB_PATH` | no | SQLite file for expenses and budgets |
 | `SIGNUP_DB_PATH` | no | SQLite file for users |

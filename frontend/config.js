@@ -17,19 +17,13 @@
      "same-origin"             Always use the same origin as the page.
      "/api"                    Vercel Services deployment, where the backend
                                 is exposed through the /api rewrite.
-     "https://api.example.com" A separately hosted backend. This is what a
-                                GitHub Pages deployment needs.
+     "https://api.example.com" A separately hosted backend.
 
    Overrides, handy for testing a backend without editing this file:
 
      ?api=https://api.example.com     query string (highest priority)
      localStorage                    "smartexpenses.apiBaseUrl", persists
                                      across every page of the site
-
-   The GitHub Pages workflow overwrites this file with the value of the
-   API_BASE_URL repository variable (Settings -> Secrets and variables ->
-   Actions -> Variables) when one is set, so the URL can be changed later
-   without a new commit.
    ========================================================================== */
 
 window.APP_CONFIG = {
