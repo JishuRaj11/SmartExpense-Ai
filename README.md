@@ -115,10 +115,11 @@ The root `vercel.json` deploys the API and the static front-end as two
   `main.py` entrypoint. It is public at `/api/*`.
 - `frontend` serves `frontend/` at every other path.
 
-Requests to `/api/expenses` reach FastAPI as `/expenses`; the service route
-strips the `/api` prefix. The committed `frontend/config.js` uses `/api`, so
-the front-end calls the backend on the same origin. No service bindings are
-needed because the front-end is static and calls the API from the browser.
+Requests to `/api/expenses` reach FastAPI as `/expenses`; the backend strips
+the `/api` prefix before routing. The committed `frontend/config.js` uses
+`/api`, so the front-end calls the backend on the same origin. No service
+bindings are needed because the front-end is static and calls the API from the
+browser.
 
 Vercel's bundle is read-only, so the SQLite files default to `/tmp` there and
 do not survive cold starts. For durable data, deploy the Docker image to a host

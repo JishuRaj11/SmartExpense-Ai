@@ -228,6 +228,30 @@ def repair_legacy_categories() -> None:
 # ---------------- APP SETUP ----------------
 
 
+class StripApiPrefix:
+    """Accept requests proxied through a public /api prefix.
+
+    Vercel Services route the front-end's /api calls to this app without
+    removing the prefix, so it is removed here instead of duplicating every
+    route under two paths.
+    """
+
+    def __init__(self, application):
+        self.application = application
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in {"http", "websocket"}:
+            path = scope.get("path", "")
+            if path == "/api" or path.startswith("/api/"):
+                scope = dict(scope)
+                stripped = path[len("/api"):] or "/"
+                scope["path"] = stripped
+                if "raw_path" in scope:
+                    scope["raw_path"] = stripped.encode()
+
+        await self.application(scope, receive, send)
+
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     """Prepare the database and validate the configuration on startup."""
@@ -271,6 +295,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(StripApiPrefix)
 
 # /register and /login lived in a separate FastAPI instance that was never
 # mounted, so they were unreachable on this port. They are served here now.

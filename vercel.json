@@ -9,19 +9,7 @@
         "main.py": {
           "includeFiles": "backend/**"
         }
-      },
-      "routes": [
-        {
-          "src": "/api/(.*)",
-          "transforms": [
-            {
-              "type": "request.path",
-              "op": "set",
-              "args": "/$1"
-            }
-          ]
-        }
-      ]
+      }
     },
     "frontend": {
       "root": "frontend"
