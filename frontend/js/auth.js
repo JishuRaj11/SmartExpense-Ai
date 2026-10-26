@@ -31,7 +31,18 @@ const PROTECTED_PAGES = [
 
 /** Read the JWT from localStorage. Returns null when signed out. */
 function getToken() {
-  return window.api.getStoredToken();
+  try {
+    if (window.api && typeof window.api.getStoredToken === "function") {
+      return window.api.getStoredToken();
+    }
+  } catch (err) {
+    /* ignore */
+  }
+  try {
+    return localStorage.getItem("smartexpenses.token");
+  } catch (err) {
+    return null;
+  }
 }
 
 /** True when a token exists in localStorage. */

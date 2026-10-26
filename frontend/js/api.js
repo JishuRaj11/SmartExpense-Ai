@@ -35,7 +35,9 @@
    An empty base URL means "same origin", so a request to /expenses goes to
    https://<host>/expenses rather than https://<host>/api/expenses.
    -------------------------------------------------------------------------- */
-const API_BASE_URL = resolveApiBaseUrl();
+   /** The backend used while developing on this machine. */
+const LOCAL_API_BASE_URL = "http://127.0.0.1:8001";
+
 
 const TOKEN_KEY = "smartexpenses.token";
 const USER_KEY = "smartexpenses.user";
@@ -43,8 +45,7 @@ const USER_KEY = "smartexpenses.user";
 /** Where a saved override of the base URL is kept between pages. */
 const API_BASE_URL_STORAGE_KEY = "smartexpenses.apiBaseUrl";
 
-/** The backend used while developing on this machine. */
-const LOCAL_API_BASE_URL = "http://127.0.0.1:8001";
+
 
 /* Budget cache: `GET /budget` answers 404 until a budget exists for a month,
    so the value returned by `POST /budget` is cached as the read path. */
@@ -121,6 +122,7 @@ function automaticApiBaseUrl() {
   return isLocalDevelopmentHost() ? LOCAL_API_BASE_URL : "";
 }
 
+
 /** Work out which backend this page should talk to. */
 function resolveApiBaseUrl() {
   const queryOverride = readQueryApiBaseUrl();
@@ -135,6 +137,7 @@ function resolveApiBaseUrl() {
 
   return configured;
 }
+const API_BASE_URL = resolveApiBaseUrl();
 
 /**
  * Remember a base URL for every page of this site.
