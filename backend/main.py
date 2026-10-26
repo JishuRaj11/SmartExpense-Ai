@@ -263,9 +263,13 @@ app = FastAPI(
 # The front-end is served from a different origin (a static file server), so
 # without this the browser blocks every request before it reaches FastAPI.
 # Set CORS_ORIGINS="http://localhost:5500" to narrow it down.
+origins = [
+    "https://smartexpense-ai-frontend.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.CORS_ORIGINS,
+    allow_origins=origins,
     # Auth travels in the Authorization header, not cookies, so credentials are
     # not required and "*" stays a valid value.
     allow_credentials=False,
