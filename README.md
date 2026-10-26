@@ -105,6 +105,17 @@ The API can run anywhere Python runs. On Render, Railway, Fly.io or a VPS:
 uvicorn backend.main:app --host 0.0.0.0 --port $PORT
 ```
 
+### Vercel
+
+The repository root contains `main.py` (the FastAPI entrypoint) and
+`vercel.json`, so a Vercel project pointed at the repository root deploys the
+API with the FastAPI preset. No custom root directory is needed.
+
+Vercel's bundle is read-only, so the SQLite files default to `/tmp` there and
+do not survive cold starts. For durable data, deploy the Docker image to a host
+with a persistent disk (for example Render) or point `EXPENSES_DB_PATH` and
+`SIGNUP_DB_PATH` at a persistent database volume.
+
 Set these environment variables on the host:
 
 | Variable | Required | Meaning |

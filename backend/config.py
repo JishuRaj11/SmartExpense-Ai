@@ -17,6 +17,7 @@ variables in your host's dashboard (Render, Railway, Fly, Docker...).
 """
 
 import os
+import tempfile
 from pathlib import Path
 
 # ---------------- PATHS ----------------
@@ -68,6 +69,12 @@ load_env_file()
 APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
 IS_PRODUCTION = APP_ENV in {"production", "prod"}
 
+# Vercel sets VERCEL=1 in every function. Its bundle is read-only, so the
+# SQLite files have to live in the writable temp directory. Set
+# EXPENSES_DB_PATH / SIGNUP_DB_PATH to a persistent database for real data.
+IS_VERCEL = bool(os.getenv("VERCEL"))
+DEFAULT_DATA_DIR = Path(tempfile.gettempdir()) if IS_VERCEL else BACKEND_DIR
+
 
 def _env_path(name: str, default: Path) -> Path:
     """Read a filesystem path from the environment, or fall back to `default`.
@@ -88,8 +95,8 @@ def _env_path(name: str, default: Path) -> Path:
 
 # ---------------- DATABASES ----------------
 
-EXPENSES_DB_PATH = _env_path("EXPENSES_DB_PATH", BACKEND_DIR / "expenses.db")
-SIGNUP_DB_PATH = _env_path("SIGNUP_DB_PATH", BACKEND_DIR / "signup.db")
+EXPENSES_DB_PATH = _env_path("EXPENSES_DB_PATH", DEFAULT_DATA_DIR / "expenses.db")
+SIGNUP_DB_PATH = _env_path("SIGNUP_DB_PATH", DEFAULT_DATA_DIR / "signup.db")
 
 
 def sqlite_url(path: Path) -> str:
