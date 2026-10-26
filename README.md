@@ -75,7 +75,8 @@ The value is one of:
 | --- | --- |
 | `""` | Automatic: `http://127.0.0.1:8001` on localhost, the page's own origin anywhere else |
 | `"same-origin"` | Always use the page's own origin |
-| `"https://api.example.com"` | A separately hosted backend |
+| `"/api"` | Vercel Services: same origin, with the backend behind the `/api` rewrite |
+| `"https://api.example.com"` | A separately hosted backend, such as GitHub Pages |
 
 Two temporary overrides exist for testing without editing any file:
 
@@ -107,9 +108,17 @@ uvicorn backend.main:app --host 0.0.0.0 --port $PORT
 
 ### Vercel
 
-The repository root contains `main.py` (the FastAPI entrypoint) and
-`vercel.json`, so a Vercel project pointed at the repository root deploys the
-API with the FastAPI preset. No custom root directory is needed.
+The root `vercel.json` deploys the API and the static front-end as two
+[Vercel Services](https://vercel.com/docs/services) in one project:
+
+- `backend` uses the repository root, the FastAPI preset, and the root
+  `main.py` entrypoint. It is public at `/api/*`.
+- `frontend` serves `frontend/` at every other path.
+
+Requests to `/api/expenses` reach FastAPI as `/expenses`; the service route
+strips the `/api` prefix. The committed `frontend/config.js` uses `/api`, so
+the front-end calls the backend on the same origin. No service bindings are
+needed because the front-end is static and calls the API from the browser.
 
 Vercel's bundle is read-only, so the SQLite files default to `/tmp` there and
 do not survive cold starts. For durable data, deploy the Docker image to a host

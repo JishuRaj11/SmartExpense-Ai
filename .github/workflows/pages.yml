@@ -50,7 +50,7 @@ jobs:
             printf 'window.APP_CONFIG = {\n  API_BASE_URL: "%s",\n};\n' "$API_BASE_URL" > frontend/config.js
             echo "API base URL taken from the API_BASE_URL repository variable."
           else
-            echo "::warning::The API_BASE_URL repository variable is not set. The site will use the API_BASE_URL committed in frontend/config.js. The app cannot reach the API until that URL points at the deployed backend."
+            echo "::warning::The API_BASE_URL repository variable is not set. frontend/config.js uses /api, which only works on the Vercel Services deployment. Set API_BASE_URL to the public backend URL for GitHub Pages."
           fi
 
           # The dev-only static server is not part of the published site.

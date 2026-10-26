@@ -15,6 +15,8 @@
                                 same origin as the page (useful when the
                                 backend serves the front-end itself).
      "same-origin"             Always use the same origin as the page.
+     "/api"                    Vercel Services deployment, where the backend
+                                is exposed through the /api rewrite.
      "https://api.example.com" A separately hosted backend. This is what a
                                 GitHub Pages deployment needs.
 
@@ -31,5 +33,5 @@
    ========================================================================== */
 
 window.APP_CONFIG = {
-  API_BASE_URL: "https://smartexpense-ai-backend.vercel.app"
+  API_BASE_URL: "/api"
 };
