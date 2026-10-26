@@ -52,4 +52,4 @@ desktop.ini
 /data/
 
 # Trained model artifacts are large and regenerable; uncomment to exclude them.
-# ml/models/*.pkl
+# backend/ml/models/*.pkl

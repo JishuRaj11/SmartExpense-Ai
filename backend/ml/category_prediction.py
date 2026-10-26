@@ -13,22 +13,23 @@ Pipeline (the whole point of this file, in plain words):
           v
     predicted category     e.g. "Dominos Pizza" -> "Food"
 
-Run it directly to (re)train the model:
+Run it directly to (re)train the model (from the project root):
 
-    python ml/category_prediction.py
+    python -m backend.ml.category_prediction
 
 Training data comes from three places, in this order:
 
-    1. ml/datasetof expense.csv   the main labelled dataset (1000 rows)
-    2. backend/expenses.db        the live rows written by the app (read-only)
-    3. SEED_DATA below            bootstraps categories the CSV does not cover
-                                  (Education, Other)
+    1. backend/ml/datasetof expense.csv   the main labelled dataset (1000 rows)
+    2. backend/expenses.db                the live rows written by the app
+                                          (read-only)
+    3. SEED_DATA below                    bootstraps categories the CSV does not
+                                          cover (Education, Other)
 
 Rows are de-duplicated by title, so the same expense never trains twice.
 The trained objects are saved to:
 
-    ml/models/category_model.pkl
-    ml/models/category_vectorizer.pkl
+    backend/ml/models/category_model.pkl
+    backend/ml/models/category_vectorizer.pkl
 """
 
 import csv
@@ -48,7 +49,7 @@ from sklearn.model_selection import train_test_split
 # matter which folder you run it from.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(BASE_DIR, "..", "backend", "expenses.db")
+DATABASE_PATH = os.path.join(BASE_DIR, "..", "expenses.db")
 DATASET_PATH = os.path.join(BASE_DIR, "datasetof expense.csv")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 VECTORIZER_PATH = os.path.join(MODELS_DIR, "category_vectorizer.pkl")
@@ -417,7 +418,7 @@ def train_model() -> bool:
             for name, count in sorted(too_few.items()):
                 print(f"        - {name!r} only has {count} example(s).")
         print("        Add more expenses (or keep the seed data) and re-run:")
-        print("        python ml/category_prediction.py")
+        print("        python -m backend.ml.category_prediction")
         return False
 
     # ---- Train/test split ----
@@ -518,7 +519,7 @@ def predict_category(title: str) -> dict:
     if not model_is_trained():
         raise ModelNotTrainedError(
             "Category prediction model is not trained yet. "
-            "Run: python ml/category_prediction.py"
+            "Run: python -m backend.ml.category_prediction"
         )
 
     vectorizer = joblib.load(VECTORIZER_PATH)

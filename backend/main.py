@@ -11,7 +11,6 @@ The interactive documentation is then at http://127.0.0.1:8001/docs.
 """
 
 import os
-import sys
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from typing import Optional
@@ -37,25 +36,19 @@ from .schemas import (
 
 
 # ---------------- ML MODULES ----------------
-# The ML code lives in the sibling ml/ folder. The project root is put on the
-# import path so `ml` resolves as a package no matter which directory the
-# server was started from.
+# The ML code is part of the backend package (backend/ml). The spending
+# predictor reads PREDICTION_MIN_MONTHS when it is imported, so the value is
+# published first.
 
-if str(config.PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(config.PROJECT_ROOT))
-
-# The ML modules read their own tunables from the environment when they are
-# imported, so the values are published before the import happens.
 os.environ.setdefault(
     "PREDICTION_MIN_MONTHS", str(config.PREDICTION_MIN_MONTHS)
 )
 
-from ml.category_prediction import ModelNotTrainedError, predict_category  # noqa: E402
-
-try:
-    from ml.spending_prediction import predict_next_month_spending
-except ImportError:  # pragma: no cover - the ML folder is optional
-    predict_next_month_spending = None  # type: ignore
+from .ml.category_prediction import (  # noqa: E402
+    ModelNotTrainedError,
+    predict_category,
+)
+from .ml.spending_prediction import predict_next_month_spending  # noqa: E402
 
 
 # ---------------- CATEGORIES ----------------
@@ -800,12 +793,6 @@ def predict_spending(
     sole source of identity. The prediction is computed from this user's own
     expense history in the expenses database.
     """
-    if predict_next_month_spending is None:
-        raise HTTPException(
-            status_code=500,
-            detail="Spending prediction module not loaded.",
-        )
-
     result = predict_next_month_spending(
         user_id,
         db_path=str(config.EXPENSES_DB_PATH),

@@ -2,7 +2,7 @@
 
 What this does, in plain words:
 
-    ml/dataset of spending.csv          (277 rows, Nov 2021 - Mar 2022)
+    backend/ml/dataset of spending.csv   (277 rows, Nov 2021 - Mar 2022)
           |
           |  keep Expense rows only, drop Income rows
           |  shift every date forward so history lands on recent months
@@ -43,12 +43,12 @@ rows it is about to insert already exist for that user (same date, amount,
 category). When everything is already present the user is skipped. --force
 removes that user's previously imported rows first and imports again.
 
-Run directly:
+Run directly (from the project root):
 
-    python ml/import_dataset.py                 # import for all users
-    python ml/import_dataset.py --user 4        # import for user 4 only
-    python ml/import_dataset.py --force         # re-import cleanly
-    python ml/import_dataset.py --dry-run       # show what would happen
+    python -m backend.ml.import_dataset                 # import for all users
+    python -m backend.ml.import_dataset --user 4        # import for user 4
+    python -m backend.ml.import_dataset --force         # re-import cleanly
+    python -m backend.ml.import_dataset --dry-run       # show what would happen
 """
 
 import argparse
@@ -65,8 +65,8 @@ import pandas as pd
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 DATASET_PATH = os.path.join(BASE_DIR, "dataset of spending.csv")
-EXPENSES_DB = os.path.join(PROJECT_ROOT, "backend", "expenses.db")
-SIGNUP_DB = os.path.join(PROJECT_ROOT, "backend", "signup.db")
+EXPENSES_DB = os.path.join(PROJECT_ROOT, "expenses.db")
+SIGNUP_DB = os.path.join(PROJECT_ROOT, "signup.db")
 
 
 # ---------------- CONFIGURATION ----------------
@@ -319,7 +319,7 @@ def _row_exists(connection, user_id, item):
 
 def _main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Import ml/dataset of spending.csv into expenses.db."
+        description="Import backend/ml/dataset of spending.csv into expenses.db."
     )
     parser.add_argument("--user", type=int, action="append", dest="users",
                         help="user id to import for (repeatable; default: all)")

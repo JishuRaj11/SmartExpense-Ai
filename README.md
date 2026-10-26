@@ -5,8 +5,8 @@ machine-learning predictions (category guessing from an expense title, and
 next month's spending forecast).
 
 - `backend/` — FastAPI application (auth, expenses, budgets, analytics, ML)
+- `backend/ml/` — the scikit-learn models and the datasets they are trained on
 - `frontend/` — the static front-end (plain HTML, CSS and JavaScript)
-- `ml/` — the scikit-learn models and the datasets they are trained on
 
 ---
 
@@ -145,6 +145,12 @@ backend/
   models.py      Expense, Budget and User tables
   schemas.py     request and response models
   tests/         pytest suite
+  ml/
+    category_prediction.py   TF-IDF + logistic regression over expense titles
+    spending_prediction.py   next month's forecast
+    import_dataset.py        seed expenses.db with the practice dataset
+    dataset/                  benchmark and processed CSV data
+    models/                   trained model artefacts
 frontend/
   index.html     entry point, routes to the dashboard or the login page
   landing.html   marketing page
@@ -158,7 +164,15 @@ frontend/
   config.js      the backend URL — the only file to edit for a deployment
   js/api.js      every request to the backend goes through here
   serve.py       development static server
-ml/
-  category_prediction.py   TF-IDF + logistic regression over expense titles
-  spending_prediction.py   next month's forecast
+```
+
+## Retraining / importing ML data
+
+Run these from the project root:
+
+```bash
+python -m backend.ml.category_prediction
+python -m backend.ml.spending_prediction --user 3
+python -m backend.ml.spending_prediction --benchmark
+python -m backend.ml.import_dataset --dry-run
 ```

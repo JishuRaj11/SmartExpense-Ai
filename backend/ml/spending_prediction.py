@@ -28,7 +28,7 @@ so training takes less time than reading the database. A cached .pkl would
 only risk going stale (a saved model would keep predicting yesterday's trend
 after the user adds new expenses) and would need strict per-user naming to
 avoid cross-user leaks. Training on demand is cheaper AND safer here. The
-ml/models/ directory is reserved for the heavy text models in
+backend/ml/models/ directory is reserved for the heavy text models in
 category_prediction.py.
 
 Evaluation (PHASE 3)
@@ -40,16 +40,17 @@ trend extrapolation, not a guarantee — the disclaimer field says so.
 
 External dataset (PHASE 8)
 --------------------------
-preprocess_dataset() converts a transaction-level CSV under ml/dataset/ into
-monthly totals (`month,amount` files). It is for development, testing and
-benchmarking ONLY — those rows are never inserted into expenses.db, and the
-production prediction always reads the logged-in user's own expenses.
+preprocess_dataset() converts a transaction-level CSV under
+backend/ml/dataset/ into monthly totals (`month,amount` files). It is for
+development, testing and benchmarking ONLY — those rows are never inserted
+into expenses.db, and the production prediction always reads the logged-in
+user's own expenses.
 
-Run directly:
+Run directly (from the project root):
 
-    python ml/spending_prediction.py --user 3            # predict for user 3
-    python ml/spending_prediction.py --user 3 --json     # raw JSON
-    python ml/spending_prediction.py --benchmark         # score the dataset
+    python -m backend.ml.spending_prediction --user 3            # predict for user 3
+    python -m backend.ml.spending_prediction --user 3 --json     # raw JSON
+    python -m backend.ml.spending_prediction --benchmark         # score the dataset
 """
 
 import argparse
@@ -69,7 +70,7 @@ from sklearn.metrics import mean_absolute_error
 # Resolved from this file's location so the module works from any CWD.
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(BASE_DIR, "..", "backend", "expenses.db")
+DATABASE_PATH = os.path.join(BASE_DIR, "..", "expenses.db")
 DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
@@ -79,8 +80,9 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 # Minimum months of history before a prediction is offered. Change this one
 # constant (or set the PREDICTION_MIN_MONTHS environment variable) to make the
 # requirement stricter/looser everywhere: ML module, API and front-end message.
-# 5 matches the history depth of ml/dataset of spending.csv (see
-# ml/import_dataset.py), so an imported account can forecast immediately.
+# 5 matches the history depth of backend/ml/dataset of spending.csv (see
+# backend/ml/import_dataset.py), so an imported account can forecast
+# immediately.
 MIN_MONTHS_HISTORY = int(os.getenv("PREDICTION_MIN_MONTHS", "5"))
 
 MODEL_NAME = "LinearRegression"
@@ -448,9 +450,9 @@ def _find_column(columns, candidates):
 def preprocess_dataset(csv_path, output_dir=None, write_files=True):
     """Transaction-level CSV -> per-user monthly totals (month,amount).
 
-    PHASE 8 support: the file under ml/dataset/ is development/benchmark
-    data. Nothing here touches expenses.db — the production prediction still
-    reads the logged-in user's own expenses.
+    PHASE 8 support: the file under backend/ml/dataset/ is
+    development/benchmark data. Nothing here touches expenses.db — the
+    production prediction still reads the logged-in user's own expenses.
 
     Expected columns (case-insensitive, best match wins):
         date   : date | transaction_date | txn_date
@@ -598,7 +600,7 @@ def _main(argv=None):
     parser.add_argument(
         "--benchmark",
         action="store_true",
-        help="score the external ml/dataset CSV instead of a live user",
+        help="score the external backend/ml/dataset CSV instead of a live user",
     )
     parser.add_argument(
         "--preprocess",

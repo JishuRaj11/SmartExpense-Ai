@@ -25,7 +25,7 @@ from pathlib import Path
 
 BACKEND_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BACKEND_DIR.parent
-ML_DIR = PROJECT_ROOT / "ml"
+ML_DIR = BACKEND_DIR / "ml"
 
 
 # ---------------- ENV FILE LOADER ----------------

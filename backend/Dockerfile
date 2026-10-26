@@ -3,8 +3,8 @@
 #   docker build -f backend/Dockerfile -t smartexpenses-api .
 #   docker run -p 8001:8001 --env-file backend/.env smartexpenses-api
 #
-# The build context is the project root, because the API also needs the ml/
-# folder and the trained model files.
+# The build context is the project root. The ML code and the trained models
+# are part of backend/ml, so copying backend/ is enough.
 
 FROM python:3.12-slim
 
@@ -21,9 +21,8 @@ WORKDIR /app
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# The application code.
+# The application code (including backend/ml).
 COPY backend /app/backend
-COPY ml /app/ml
 
 # The SQLite files are written into this folder. Mount a volume on it to keep
 # the data when the container is replaced.

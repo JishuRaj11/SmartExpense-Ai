@@ -22,8 +22,8 @@ uvicorn backend.main:app --reload --port 8001
 The API is then on <http://127.0.0.1:8001> and the interactive documentation
 on <http://127.0.0.1:8001/docs>.
 
-> The server has to be started from the **project root**, because it imports
-> the `ml/` package that sits next to `backend/`.
+> The server has to be started from the **project root**, because it uses the
+> `backend` package and its `backend/ml` subpackage.
 
 The front-end expects the API on port **8001**. Run it like this:
 
@@ -118,6 +118,7 @@ backend/
 ├── requirements.txt
 ├── .env.example
 ├── Dockerfile
+├── ml/             the machine-learning code and trained artefacts
 └── tests/          the test suite
 ```
 
@@ -189,13 +190,13 @@ CORS_ORIGINS=https://your-frontend.example.com
 ### Category prediction
 
 `POST /predict-category` runs a TF-IDF vectorizer and a logistic regression
-over the expense title. The trained files live in `ml/models/` and are part of
-the repository, so a deployment does not have to train first.
+over the expense title. The trained files live in `backend/ml/models/` and are
+part of the repository, so a deployment does not have to train first.
 
-To retrain:
+To retrain (from the project root):
 
 ```bash
-python ml/category_prediction.py
+python -m backend.ml.category_prediction
 ```
 
 ### Spending prediction
@@ -205,8 +206,9 @@ monthly totals and answers with next month's estimate. It never reads another
 account's rows and never trains on the sample dataset.
 
 ```bash
-python ml/spending_prediction.py --user 3
-python ml/spending_prediction.py --benchmark      # score the sample dataset
+python -m backend.ml.spending_prediction --user 3
+python -m backend.ml.spending_prediction --benchmark   # score sample data
+python -m backend.ml.import_dataset --dry-run          # preview a data import
 ```
 
 ---

@@ -1,14 +1,14 @@
 """The two machine-learning endpoints.
 
-The category model is a trained artefact that lives in ml/models/. When it is
-not there (a fresh clone that skipped the training step) the endpoint answers
-503, so the test accepts both outcomes and only checks the contract of the
-answer that comes back.
+The category model is a trained artefact that lives in backend/ml/models/.
+When it is not there (a fresh clone that skipped the training step) the
+endpoint answers 503, so the test accepts both outcomes and only checks the
+contract of the answer that comes back.
 """
 
 import pytest
 
-from ml.category_prediction import model_is_trained
+from backend.ml.category_prediction import model_is_trained
 
 
 def test_predicting_a_category(client):
