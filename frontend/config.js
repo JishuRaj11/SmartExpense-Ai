@@ -31,5 +31,5 @@
    ========================================================================== */
 
 window.APP_CONFIG = {
-  API_BASE_URL: "https://your-backend-project.vercel.app"
+  API_BASE_URL: "https://smartexpense-ai-backend.vercel.app/"
 };
